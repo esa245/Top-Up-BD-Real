@@ -10,8 +10,8 @@ const PORT = 3000;
 
 app.use(express.json());
 
-const SMM_API_KEY = process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b30";
-const SMM_API_URL = process.env.SMM_API_URL || "https://motherpanel.com/api/v2";
+const SMM_API_KEY = (process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b30").trim();
+const SMM_API_URL = (process.env.SMM_API_URL || "https://motherpanel.com/api/v2").trim();
 
 // API routes
 app.get("/api/services", async (req, res) => {

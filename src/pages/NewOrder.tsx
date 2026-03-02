@@ -13,6 +13,8 @@ interface SMMService {
   min: string;
   max: string;
   refill: boolean;
+  description?: string;
+  average_time?: string;
 }
 
 export default function NewOrder() {
@@ -23,6 +25,7 @@ export default function NewOrder() {
   const [selectedService, setSelectedService] = useState<SMMService | null>(null);
   const [link, setLink] = useState('');
   const [quantity, setQuantity] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -36,9 +39,10 @@ export default function NewOrder() {
           setCategories(cats);
           if (cats.length > 0) setSelectedCategory(cats[0]);
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error('Failed to fetch services:', error);
-        toast.error('Failed to load services. Please try again later.');
+        const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
+        toast.error(`Failed to load services: ${errorMsg}`);
       } finally {
         setLoading(false);
       }
@@ -46,10 +50,13 @@ export default function NewOrder() {
     fetchServices();
   }, []);
 
-  const filteredServices = services.filter(s => s.category === selectedCategory);
+  const filteredServices = services.filter(s => 
+    s.category === selectedCategory && 
+    (s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.service.includes(searchTerm))
+  );
 
   const charge = (selectedService && quantity) 
-    ? (parseInt(quantity) / 1000) * parseFloat(selectedService.rate) 
+    ? (parseInt(quantity) / 1000) * parseFloat(selectedService.rate) * 120 // Assuming 120 BDT per USD conversion
     : 0;
 
   const handleSubmit = async () => {
@@ -96,9 +103,10 @@ export default function NewOrder() {
       } else if (response.data.error) {
         toast.error(response.data.error);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Order Error:', error);
-      toast.error('Failed to place order. Please try again.');
+      const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
+      toast.error(`Failed to place order: ${errorMsg}`);
     }
   };
 
@@ -113,6 +121,20 @@ export default function NewOrder() {
 
   return (
     <div className="p-4 space-y-6">
+      {/* Search Bar */}
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-gray-700">Search</label>
+        <div className="relative">
+          <input 
+            type="text" 
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search service..."
+            className="w-full bg-white border border-gray-200 rounded-xl p-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+          />
+        </div>
+      </div>
+
       {/* Category */}
       <div className="space-y-2">
         <div className="flex justify-between items-center">
@@ -153,7 +175,9 @@ export default function NewOrder() {
           >
             <option value="">Select a service</option>
             {filteredServices.map(srv => (
-              <option key={srv.service} value={srv.service}>{srv.name}</option>
+              <option key={srv.service} value={srv.service}>
+                [{srv.service}] {srv.name}
+              </option>
             ))}
           </select>
           <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
@@ -162,29 +186,34 @@ export default function NewOrder() {
 
       {/* Description */}
       {selectedService && (
-        <div className="bg-indigo-50/50 rounded-2xl p-5 space-y-3">
-          <div className="flex items-center gap-2 text-indigo-900 font-bold">
-            <Info size={18} />
-            <span>Service Details</span>
+        <div className="space-y-2">
+          <label className="text-sm font-bold text-gray-700">Description</label>
+          <div className="bg-indigo-50/50 rounded-2xl p-5 space-y-3 border border-indigo-100">
+            <div className="flex items-center gap-2 text-indigo-900 font-bold">
+              <Info size={18} />
+              <span>Service Details</span>
+            </div>
+            <div className="text-sm text-indigo-600/80 space-y-2">
+              {selectedService.description ? (
+                <div className="whitespace-pre-wrap">{selectedService.description}</div>
+              ) : (
+                <ul className="space-y-1">
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                    Rate: ৳{(parseFloat(selectedService.rate) * 120).toFixed(2)} per 1000
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                    Min: {selectedService.min} - Max: {selectedService.max}
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                    Refill: {selectedService.refill ? 'Yes' : 'No'}
+                  </li>
+                </ul>
+              )}
+            </div>
           </div>
-          <ul className="space-y-2 text-sm text-indigo-600/80">
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-              Rate: ৳{selectedService.rate} per 1000
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-              Min: {selectedService.min}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-              Max: {selectedService.max}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
-              Refill: {selectedService.refill ? 'Yes' : 'No'}
-            </li>
-          </ul>
         </div>
       )}
 
@@ -210,6 +239,19 @@ export default function NewOrder() {
           placeholder={selectedService ? `Min: ${selectedService.min} - Max: ${selectedService.max}` : "Enter quantity"}
           className="w-full bg-white border border-gray-200 rounded-xl p-4 text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
         />
+        {selectedService && (
+          <p className="text-[10px] text-gray-400 font-medium">
+            Min: {selectedService.min} - Max: {selectedService.max}
+          </p>
+        )}
+      </div>
+
+      {/* Average Time */}
+      <div className="space-y-2">
+        <label className="text-sm font-bold text-gray-700">Average time <Info size={12} className="inline text-gray-400" /></label>
+        <div className="w-full bg-gray-50 border border-gray-100 rounded-xl p-4 text-gray-500 font-medium">
+          {selectedService?.average_time || 'No data available'}
+        </div>
       </div>
 
       {/* Charge */}
@@ -228,6 +270,24 @@ export default function NewOrder() {
       >
         Submit Order
       </button>
+
+      {/* Support Section */}
+      <div className="pt-4 border-t border-gray-100">
+        <div className="bg-gray-50 rounded-2xl p-4 border border-gray-100">
+          <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Important Notes :</h4>
+          <ul className="text-[11px] text-gray-400 space-y-1 list-disc pl-4">
+            <li>Don't make multiple order in same time same link.</li>
+            <li>Wrong link, die or don't open follow button not refundable.</li>
+            <li>During high demand, speed and start time may vary.</li>
+          </ul>
+          <button 
+            onClick={() => window.open('https://t.me/your_telegram', '_blank')}
+            className="mt-4 flex items-center gap-2 bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg hover:bg-indigo-600 transition-colors"
+          >
+            Support
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
