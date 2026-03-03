@@ -1,13 +1,48 @@
-import { RefreshCw, Clock, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { RefreshCw, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
 
 export default function Orders() {
-  const { orders, currentUser } = useAppContext();
+  const { orders, currentUser, refreshOrders } = useAppContext();
+  const [refreshing, setRefreshing] = useState(false);
   const myOrders = orders.filter(o => o.userId === currentUser?.id);
 
-  const handleRefresh = () => {
-    toast.success('Orders refreshed!');
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refreshOrders();
+      toast.success('Orders updated!');
+    } catch (error) {
+      toast.error('Failed to update orders');
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    const checkAndRefresh = () => {
+      if (myOrders.some(o => o.smmOrderId && !['Completed', 'Cancelled', 'Rejected', 'Partial', 'Refunded'].includes(o.status))) {
+        refreshOrders();
+      }
+    };
+
+    checkAndRefresh();
+    const interval = setInterval(checkAndRefresh, 30000); // Poll every 30 seconds
+    return () => clearInterval(interval);
+  }, [currentUser?.id]);
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'completed': return 'text-emerald-500 bg-emerald-50';
+      case 'processing':
+      case 'in progress': return 'text-blue-500 bg-blue-50';
+      case 'cancelled':
+      case 'rejected': return 'text-red-500 bg-red-50';
+      case 'partial': return 'text-amber-500 bg-amber-50';
+      case 'refunded': return 'text-purple-500 bg-purple-50';
+      default: return 'text-orange-500 bg-orange-50';
+    }
   };
 
   return (
@@ -16,9 +51,10 @@ export default function Orders() {
         <h2 className="text-xl font-bold text-slate-900">Order History</h2>
         <button 
           onClick={handleRefresh}
-          className="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-100 transition-colors"
+          disabled={refreshing}
+          className="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-100 transition-colors disabled:opacity-50"
         >
-          <RefreshCw size={18} />
+          <RefreshCw size={18} className={refreshing ? "animate-spin" : ""} />
         </button>
       </div>
 
@@ -40,7 +76,7 @@ export default function Orders() {
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-sm font-bold text-indigo-600">৳{order.charge.toFixed(2)}</div>
-                  <div className="text-[10px] font-bold text-orange-500 bg-orange-50 px-2 py-1 rounded-md mt-1 inline-block">
+                  <div className={`text-[10px] font-bold px-2 py-1 rounded-md mt-1 inline-block ${getStatusColor(order.status)}`}>
                     {order.status.toUpperCase()}
                   </div>
                 </div>

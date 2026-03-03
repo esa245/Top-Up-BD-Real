@@ -3,7 +3,7 @@ import { db } from '../firebase';
 import { ref, onValue, set, update, get, child } from 'firebase/database';
 
 export type TransactionStatus = 'Pending' | 'Approved' | 'Rejected';
-export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled';
+export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled' | 'Partial' | 'Refunded';
 
 export interface User {
   id: string;
@@ -38,6 +38,7 @@ export interface Order {
   charge: number;
   status: OrderStatus;
   createdAt: string;
+  smmOrderId?: string;
 }
 
 export interface ReferralClaim {
@@ -55,12 +56,15 @@ interface AppState {
   transactions: Transaction[];
   orders: Order[];
   referralClaims: ReferralClaim[];
+  settings: { nagadNumber: string; bkashNumber: string };
   login: (email: string, name?: string, password?: string, userId?: string, username?: string, whatsapp?: string) => Promise<void>;
   logout: () => void;
   addTransaction: (amount: number, method: string, trxId?: string) => Promise<void>;
   approveTransaction: (id: string) => Promise<void>;
   rejectTransaction: (id: string) => Promise<void>;
-  placeOrder: (service: string, link: string, quantity: number, charge: number) => Promise<boolean>;
+  placeOrder: (service: string, link: string, quantity: number, charge: number, smmOrderId?: string) => Promise<boolean>;
+  refreshOrders: () => Promise<void>;
+  updateSettings: (nagad: string, bkash: string) => Promise<void>;
   addReferralClaim: (referredUserIdOrEmail: string) => Promise<{ success: boolean; message: string }>;
   approveReferralClaim: (id: string, amount: number) => Promise<void>;
   rejectReferralClaim: (id: string) => Promise<void>;
@@ -78,12 +82,14 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [orders, setOrders] = useState<Order[]>([]);
   const [referralClaims, setReferralClaims] = useState<ReferralClaim[]>([]);
+  const [settings, setSettings] = useState({ nagadNumber: '01792157184', bkashNumber: '01753567152' });
 
   useEffect(() => {
     const usersRef = ref(db, 'users');
     const txsRef = ref(db, 'transactions');
     const ordersRef = ref(db, 'orders');
     const referralsRef = ref(db, 'referralClaims');
+    const settingsRef = ref(db, 'settings');
 
     const unsubscribeUsers = onValue(usersRef, (snapshot) => {
       const data = snapshot.val();
@@ -115,11 +121,17 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       setReferralClaims(data ? (Object.values(data) as ReferralClaim[]).reverse() : []);
     });
 
+    const unsubscribeSettings = onValue(settingsRef, (snapshot) => {
+      const data = snapshot.val();
+      if (data) setSettings(data);
+    });
+
     return () => {
       unsubscribeUsers();
       unsubscribeTxs();
       unsubscribeOrders();
       unsubscribeReferrals();
+      unsubscribeSettings();
     };
   }, [currentUser?.id]);
 
@@ -195,7 +207,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     await update(ref(db, `transactions/${id}`), { status: 'Rejected' });
   };
 
-  const placeOrder = async (service: string, link: string, quantity: number, charge: number) => {
+  const placeOrder = async (service: string, link: string, quantity: number, charge: number, smmOrderId?: string) => {
     if (!currentUser || currentUser.balance < charge) return false;
     
     const orderId = Math.random().toString(36).substr(2, 9);
@@ -208,7 +220,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       quantity,
       charge,
       status: 'Pending',
-      createdAt: new Date().toISOString()
+      createdAt: new Date().toISOString(),
+      smmOrderId
     };
 
     await set(ref(db, `orders/${orderId}`), newOrder);
@@ -220,6 +233,47 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     });
     
     return true;
+  };
+
+  const refreshOrders = async () => {
+    if (!currentUser) return;
+    
+    const userOrders = orders.filter(o => o.userId === currentUser.id);
+    const pendingOrders = userOrders.filter(o => 
+      o.smmOrderId && 
+      !['Completed', 'Cancelled', 'Rejected', 'Partial', 'Refunded'].includes(o.status)
+    );
+
+    if (pendingOrders.length === 0) return;
+
+    for (const order of pendingOrders) {
+      try {
+        const response = await fetch(`/api/status/${order.smmOrderId}`);
+        const data = await response.json();
+        
+        if (data && data.status) {
+          let newStatus: OrderStatus = order.status;
+          const smmStatus = data.status.toLowerCase();
+          
+          if (smmStatus.includes('pending')) newStatus = 'Pending';
+          else if (smmStatus.includes('processing') || smmStatus.includes('progress')) newStatus = 'Processing';
+          else if (smmStatus.includes('completed')) newStatus = 'Completed';
+          else if (smmStatus.includes('canceled') || smmStatus.includes('cancelled')) newStatus = 'Cancelled';
+          else if (smmStatus.includes('partial')) newStatus = 'Partial';
+          else if (smmStatus.includes('refund')) newStatus = 'Refunded';
+          
+          if (newStatus !== order.status) {
+            await update(ref(db, `orders/${order.id}`), { status: newStatus });
+          }
+        }
+      } catch (error) {
+        console.error(`Failed to refresh order ${order.id}:`, error);
+      }
+    }
+  };
+
+  const updateSettings = async (nagad: string, bkash: string) => {
+    await set(ref(db, 'settings'), { nagadNumber: nagad, bkashNumber: bkash });
   };
 
   const addReferralClaim = async (referredUserIdOrEmail: string) => {
@@ -296,7 +350,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, addReferralClaim, approveReferralClaim, rejectReferralClaim, restoreData }}>
+    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, addReferralClaim, approveReferralClaim, rejectReferralClaim, restoreData }}>
       {children}
     </AppContext.Provider>
   );

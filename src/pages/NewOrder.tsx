@@ -166,7 +166,8 @@ export default function NewOrder() {
           selectedService.name,
           link,
           qty,
-          charge
+          charge,
+          response.data.order.toString()
         );
 
         if (success) {

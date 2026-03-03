@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Download, Upload } from 'lucide-react';
+import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Download, Upload, Settings as SettingsIcon, Save } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
@@ -7,8 +7,12 @@ import toast from 'react-hot-toast';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
-  const { users, orders, transactions, referralClaims, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData } = useAppContext();
+  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData, updateSettings } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
+  
+  const [nagadInput, setNagadInput] = useState(settings.nagadNumber);
+  const [bkashInput, setBkashInput] = useState(settings.bkashNumber);
+  const [savingSettings, setSavingSettings] = useState(false);
 
   const maskEmail = (email: string) => {
     if (!email) return 'N/A';
@@ -66,12 +70,25 @@ export default function AdminDashboard() {
     toast.success('Transaction rejected!');
   };
 
+  const handleSaveSettings = async () => {
+    setSavingSettings(true);
+    try {
+      await updateSettings(nagadInput, bkashInput);
+      toast.success('Settings updated successfully!');
+    } catch (error) {
+      toast.error('Failed to update settings');
+    } finally {
+      setSavingSettings(false);
+    }
+  };
+
   const tabs = [
     { id: 'pending', label: `Pending (${pendingTxs.length})` },
     { id: 'all', label: 'All Transactions' },
     { id: 'orders', label: 'Orders' },
     { id: 'users', label: 'Users' },
     { id: 'referrals', label: `Referrals (${referralClaims.length})` },
+    { id: 'settings', label: 'Settings' },
   ];
 
   return (
@@ -171,10 +188,63 @@ export default function AdminDashboard() {
               {activeTab === 'orders' && 'All Orders'}
               {activeTab === 'users' && 'All Users'}
               {activeTab === 'referrals' && 'Referral Claims'}
+              {activeTab === 'settings' && 'Payment Settings'}
             </h3>
           </div>
           
           <div className="w-full text-left text-sm">
+            {/* Settings Tab */}
+            {activeTab === 'settings' && (
+              <div className="p-6 space-y-6">
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                      Nagad Number
+                    </label>
+                    <input 
+                      type="text" 
+                      value={nagadInput}
+                      onChange={(e) => setNagadInput(e.target.value)}
+                      placeholder="Enter Nagad number"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-bold text-gray-700 flex items-center gap-2">
+                      <div className="w-2 h-2 bg-pink-600 rounded-full"></div>
+                      Bkash Number
+                    </label>
+                    <input 
+                      type="text" 
+                      value={bkashInput}
+                      onChange={(e) => setBkashInput(e.target.value)}
+                      placeholder="Enter Bkash number"
+                      className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all"
+                    />
+                  </div>
+
+                  <button 
+                    onClick={handleSaveSettings}
+                    disabled={savingSettings}
+                    className="w-full bg-indigo-600 text-white font-bold rounded-xl p-4 hover:bg-indigo-700 transition-colors shadow-lg shadow-indigo-100 flex items-center justify-center gap-2 disabled:opacity-50"
+                  >
+                    {savingSettings ? 'Saving...' : (
+                      <>
+                        <Save size={18} /> Save Settings
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-100 rounded-xl p-4 text-amber-800 text-xs">
+                  <p className="font-bold mb-1">Note:</p>
+                  <p>Changing these numbers will immediately update the "Add Funds" page for all users.</p>
+                </div>
+              </div>
+            )}
+
             {/* Pending Tab */}
             {activeTab === 'pending' && (
               <>

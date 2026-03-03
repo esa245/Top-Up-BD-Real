@@ -1,5 +1,5 @@
 import React from "react";
-import { HeadphonesIcon, Send, MessageCircle, Mail, ExternalLink } from "lucide-react";
+import { HeadphonesIcon, Send, MessageCircle, Mail, ExternalLink, Download } from "lucide-react";
 import toast from "react-hot-toast";
 
 export default function Support() {
@@ -57,6 +57,24 @@ export default function Support() {
               <MessageCircle size={24} />
             </div>
             <span className="text-lg">Join WhatsApp Group</span>
+          </div>
+          <ExternalLink size={20} className="opacity-50 group-hover:opacity-100 transition-opacity relative z-10" />
+        </a>
+
+        <a 
+          href="https://i.diawi.com/gAZjaj"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="w-full group relative overflow-hidden bg-gradient-to-r from-slate-800 to-slate-900 text-white font-bold rounded-2xl p-4 flex items-center justify-between hover:shadow-lg hover:shadow-slate-200 transition-all active:scale-[0.98]"
+        >
+          <div className="flex items-center gap-3 relative z-10">
+            <div className="bg-white/20 p-2 rounded-xl">
+              <Download size={24} />
+            </div>
+            <div className="text-left">
+              <span className="text-lg block">Download APK</span>
+              <span className="text-[10px] font-normal opacity-70">Install our official app</span>
+            </div>
           </div>
           <ExternalLink size={20} className="opacity-50 group-hover:opacity-100 transition-opacity relative z-10" />
         </a>

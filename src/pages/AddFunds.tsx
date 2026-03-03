@@ -7,7 +7,7 @@ export default function AddFunds() {
   const [selectedMethod, setSelectedMethod] = useState('nagad');
   const [amount, setAmount] = useState('');
   const [transactionId, setTransactionId] = useState('');
-  const { addTransaction, transactions, currentUser } = useAppContext();
+  const { addTransaction, transactions, currentUser, settings } = useAppContext();
 
   const myTransactions = transactions.filter(t => {
     if (t.userId !== currentUser?.id) return false;
@@ -17,8 +17,8 @@ export default function AddFunds() {
     return txDate >= sevenDaysAgo;
   });
 
-  const nagadNumber = "01792157184";
-  const bkashNumber = "01753567152";
+  const nagadNumber = settings.nagadNumber;
+  const bkashNumber = settings.bkashNumber;
 
   const currentNumber = selectedMethod === 'nagad' ? nagadNumber : bkashNumber;
   const vatRate = 0.35; // 35% VAT
