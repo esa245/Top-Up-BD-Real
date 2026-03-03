@@ -14,6 +14,14 @@ const SMM_API_KEY = (process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b3
 const SMM_API_URL = (process.env.SMM_API_URL || "https://motherpanel.com/api/v2").trim();
 
 // API routes
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "ok", 
+    smm_url: SMM_API_URL, 
+    key_preview: SMM_API_KEY ? `${SMM_API_KEY.substring(0, 4)}...` : 'not set' 
+  });
+});
+
 app.get("/api/services", async (req, res) => {
   try {
     console.log(`Fetching services from: ${SMM_API_URL} using key starting with: ${SMM_API_KEY.substring(0, 4)}...`);
@@ -24,10 +32,15 @@ app.get("/api/services", async (req, res) => {
     const response = await axios.post(SMM_API_URL, params.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'Accept': 'application/json'
       }
     });
+
+    if (response.data && response.data.error) {
+      console.error("SMM Provider error (Services):", response.data.error);
+      return res.status(400).json({ error: response.data.error });
+    }
+
     res.json(response.data);
   } catch (error: any) {
     if (error.response) {
@@ -62,10 +75,15 @@ app.post("/api/order", async (req, res) => {
     const response = await axios.post(SMM_API_URL, params.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'Accept': 'application/json'
       }
     });
+
+    if (response.data && response.data.error) {
+      console.error("SMM Provider error (Order):", response.data.error);
+      return res.status(400).json({ error: response.data.error });
+    }
+
     res.json(response.data);
   } catch (error: any) {
     if (error.response) {

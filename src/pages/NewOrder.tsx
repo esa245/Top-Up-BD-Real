@@ -29,7 +29,9 @@ export default function NewOrder() {
   const [quantity, setQuantity] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'order' | 'services'>('order');
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const usedBalance = orders.reduce((acc, order) => acc + order.charge, 0);
 
@@ -51,6 +53,7 @@ export default function NewOrder() {
 
   const fetchServices = async () => {
     setLoading(true);
+    setApiError(null);
     try {
       const response = await axios.get('/api/services');
       const data = response.data;
@@ -66,7 +69,7 @@ export default function NewOrder() {
           const actionService = data.find(s => 
             s.category === promoteCat && 
             s.name.toLowerCase().includes('facebook follower') && 
-            s.name.includes('14')
+            (s.name.includes('14') || Math.abs(((parseFloat(s.rate) * 120) + 5) - 14) < 1.5)
           );
           if (actionService) {
             setSelectedService(actionService);
@@ -78,10 +81,13 @@ export default function NewOrder() {
         } else if (cats.length > 0 && !selectedCategory) {
           setSelectedCategory(cats[0]);
         }
+      } else {
+        setApiError('Invalid data format from provider');
       }
     } catch (error: any) {
       console.error('Failed to fetch services:', error);
       const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
+      setApiError(errorMsg);
       toast.error(`Failed to load services: ${errorMsg}`);
     } finally {
       setLoading(false);
@@ -99,8 +105,8 @@ export default function NewOrder() {
     )
     .sort((a, b) => {
       // Sort the promotional service to the top
-      const isAPromo = a.name.toLowerCase().includes('facebook follower') && ((parseFloat(a.rate) * 120) + 5) === 14;
-      const isBPromo = b.name.toLowerCase().includes('facebook follower') && ((parseFloat(b.rate) * 120) + 5) === 14;
+      const isAPromo = a.name.toLowerCase().includes('facebook follower') && (a.name.includes('14') || Math.abs(((parseFloat(a.rate) * 120) + 5) - 14) < 1.5);
+      const isBPromo = b.name.toLowerCase().includes('facebook follower') && (b.name.includes('14') || Math.abs(((parseFloat(b.rate) * 120) + 5) - 14) < 1.5);
       if (isAPromo && !isBPromo) return -1;
       if (!isAPromo && isBPromo) return 1;
       return 0;
@@ -129,6 +135,7 @@ export default function NewOrder() {
       return;
     }
 
+    setSubmitting(true);
     try {
       // 1. Place order on SMM Panel via backend
       const response = await axios.post('/api/order', {
@@ -158,6 +165,8 @@ export default function NewOrder() {
       console.error('Order Error:', error);
       const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
       toast.error(`Failed to place order: ${errorMsg}`);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -194,8 +203,8 @@ export default function NewOrder() {
           <div className="flex justify-between items-center">
             <label className="text-sm font-bold text-slate-600">Category</label>
             <div className="flex items-center gap-3 text-[10px] font-bold">
-              <span className={services.length > 0 ? "text-emerald-500" : "text-red-500"}>
-                {services.length > 0 ? "Connected" : "API Error"}
+              <span className={!apiError ? "text-emerald-500" : "text-red-500"}>
+                {!apiError ? "Connected" : `API Error: ${apiError}`}
               </span>
               <button 
                 onClick={fetchServices}
@@ -217,7 +226,7 @@ export default function NewOrder() {
                   const promoSvc = services.find(s => 
                     s.category === newCat && 
                     s.name.toLowerCase().includes('facebook follower') && 
-                    Math.round((parseFloat(s.rate) * 120) + 5) === 14
+                    (s.name.includes('14') || Math.abs(((parseFloat(s.rate) * 120) + 5) - 14) < 1.5)
                   );
                   if (promoSvc) {
                     setSelectedService(promoSvc);
@@ -353,10 +362,17 @@ export default function NewOrder() {
         {/* Submit Button */}
         <button 
           onClick={handleSubmit}
-          disabled={!selectedService || !link || !quantity}
-          className="w-full bg-indigo-600 text-white font-bold rounded-2xl p-5 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-lg"
+          disabled={!selectedService || !link || !quantity || submitting}
+          className="w-full bg-indigo-600 text-white font-bold rounded-2xl p-5 hover:bg-indigo-700 transition-all shadow-xl shadow-indigo-100 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed text-lg flex items-center justify-center gap-2"
         >
-          Submit Order
+          {submitting ? (
+            <>
+              <Loader2 className="w-5 h-5 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            'Submit Order'
+          )}
         </button>
       </div>
 
