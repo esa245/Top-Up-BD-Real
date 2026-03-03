@@ -31,7 +31,7 @@ export default function NewOrder() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState<'order' | 'services'>('order');
-  const [apiError, setApiError] = useState<string | null>(null);
+  const [apiError, setApiError] = useState<any>(null);
 
   const usedBalance = orders.reduce((acc, order) => acc + order.charge, 0);
 
@@ -86,7 +86,23 @@ export default function NewOrder() {
       }
     } catch (error: any) {
       console.error('Failed to fetch services:', error);
-      const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
+      const rawError = error.response?.data;
+      let errorMsg = error.message;
+      
+      if (rawError) {
+        if (typeof rawError === 'string') {
+          errorMsg = rawError;
+        } else if (rawError.message && typeof rawError.message === 'string') {
+          errorMsg = rawError.message;
+        } else if (rawError.error && typeof rawError.error === 'string') {
+          errorMsg = rawError.error;
+        } else if (rawError.details?.error && typeof rawError.details.error === 'string') {
+          errorMsg = rawError.details.error;
+        } else {
+          errorMsg = JSON.stringify(rawError);
+        }
+      }
+      
       setApiError(errorMsg);
       toast.error(`Failed to load services: ${errorMsg}`);
     } finally {
@@ -163,7 +179,23 @@ export default function NewOrder() {
       }
     } catch (error: any) {
       console.error('Order Error:', error);
-      const errorMsg = error.response?.data?.details?.error || error.response?.data?.error || error.message;
+      const rawError = error.response?.data;
+      let errorMsg = error.message;
+      
+      if (rawError) {
+        if (typeof rawError === 'string') {
+          errorMsg = rawError;
+        } else if (rawError.message && typeof rawError.message === 'string') {
+          errorMsg = rawError.message;
+        } else if (rawError.error && typeof rawError.error === 'string') {
+          errorMsg = rawError.error;
+        } else if (rawError.details?.error && typeof rawError.details.error === 'string') {
+          errorMsg = rawError.details.error;
+        } else {
+          errorMsg = JSON.stringify(rawError);
+        }
+      }
+      
       toast.error(`Failed to place order: ${errorMsg}`);
     } finally {
       setSubmitting(false);
@@ -204,7 +236,7 @@ export default function NewOrder() {
             <label className="text-sm font-bold text-slate-600">Category</label>
             <div className="flex items-center gap-3 text-[10px] font-bold">
               <span className={!apiError ? "text-emerald-500" : "text-red-500"}>
-                {!apiError ? "Connected" : `API Error: ${apiError}`}
+                {!apiError ? "Connected" : `API Error: ${typeof apiError === 'string' ? apiError : JSON.stringify(apiError)}`}
               </span>
               <button 
                 onClick={fetchServices}
@@ -212,6 +244,14 @@ export default function NewOrder() {
               >
                 <Zap size={10} /> Load Real Services
               </button>
+              <a 
+                href="/api/health" 
+                target="_blank" 
+                className="text-slate-400 hover:text-indigo-600 transition-colors flex items-center gap-1"
+                title="Check Server Health & IP"
+              >
+                <Info size={10} /> IP
+              </a>
             </div>
           </div>
           <div className="relative">

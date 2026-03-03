@@ -14,11 +14,20 @@ const SMM_API_KEY = (process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b3
 const SMM_API_URL = (process.env.SMM_API_URL || "https://motherpanel.com/api/v2").trim();
 
 // API routes
-app.get("/api/health", (req, res) => {
+app.get("/api/health", async (req, res) => {
+  let publicIp = 'unknown';
+  try {
+    const ipRes = await axios.get('https://api.ipify.org?format=json', { timeout: 2000 });
+    publicIp = ipRes.data.ip;
+  } catch (e) {
+    console.error("Failed to get public IP");
+  }
+
   res.json({ 
     status: "ok", 
     smm_url: SMM_API_URL, 
-    key_preview: SMM_API_KEY ? `${SMM_API_KEY.substring(0, 4)}...` : 'not set' 
+    key_preview: SMM_API_KEY ? `${SMM_API_KEY.substring(0, 4)}...` : 'not set',
+    server_ip: publicIp
   });
 });
 
@@ -38,7 +47,10 @@ app.get("/api/services", async (req, res) => {
 
     if (response.data && response.data.error) {
       console.error("SMM Provider error (Services):", response.data.error);
-      return res.status(400).json({ error: response.data.error });
+      return res.status(400).json({ 
+        error: typeof response.data.error === 'string' ? response.data.error : JSON.stringify(response.data.error),
+        raw: response.data 
+      });
     }
 
     res.json(response.data);
@@ -46,9 +58,9 @@ app.get("/api/services", async (req, res) => {
     if (error.response) {
       console.error("SMM API Error (Services):", error.response.status, error.response.data);
       res.status(error.response.status).json({ 
-        error: "SMM Provider Error", 
+        error: `SMM Provider Error (${error.response.status})`, 
         details: error.response.data,
-        status: error.response.status 
+        message: typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)
       });
     } else {
       console.error("SMM API Error (Services):", error.message);
@@ -89,8 +101,9 @@ app.post("/api/order", async (req, res) => {
     if (error.response) {
       console.error("SMM API Error (Order):", error.response.status, error.response.data);
       res.status(error.response.status).json({ 
-        error: "SMM Provider Error", 
-        details: error.response.data 
+        error: `SMM Provider Error (${error.response.status})`, 
+        details: error.response.data,
+        message: typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)
       });
     } else {
       console.error("SMM API Error (Order):", error.message);
