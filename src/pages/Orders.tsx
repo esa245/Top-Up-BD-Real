@@ -13,30 +13,30 @@ export default function Orders() {
   return (
     <div className="p-4 space-y-6 flex flex-col h-full">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-bold text-gray-900">Order History</h2>
+        <h2 className="text-xl font-bold text-slate-900">Order History</h2>
         <button 
           onClick={handleRefresh}
-          className="bg-indigo-50 text-indigo-600 p-2 rounded-lg hover:bg-indigo-100 transition-colors"
+          className="bg-indigo-50 text-indigo-600 p-2 rounded-xl hover:bg-indigo-100 transition-colors"
         >
           <RefreshCw size={18} />
         </button>
       </div>
 
       {myOrders.length === 0 ? (
-        <div className="flex-1 bg-white rounded-2xl border border-gray-100 p-8 flex flex-col items-center justify-center text-center space-y-4 min-h-[400px]">
-          <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center text-gray-300">
+        <div className="flex-1 bg-white rounded-3xl border border-slate-200 p-8 flex flex-col items-center justify-center text-center space-y-4 min-h-[400px]">
+          <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center text-slate-300">
             <Clock size={32} />
           </div>
-          <p className="text-gray-500 font-medium">No orders yet.</p>
+          <p className="text-slate-500 font-medium">No orders yet.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {myOrders.map(order => (
-            <div key={order.id} className="bg-white border border-gray-100 rounded-2xl p-4 shadow-sm space-y-3">
+            <div key={order.id} className="bg-white border border-slate-200 rounded-3xl p-5 shadow-sm space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="text-xs text-gray-400 mb-1">ID: {order.id}</div>
-                  <div className="font-bold text-gray-900 text-sm line-clamp-1">{order.service}</div>
+                  <div className="text-xs text-slate-400 mb-1">ID: {order.id}</div>
+                  <div className="font-bold text-slate-900 text-sm line-clamp-1">{order.service}</div>
                 </div>
                 <div className="text-right shrink-0">
                   <div className="text-sm font-bold text-indigo-600">৳{order.charge.toFixed(2)}</div>
@@ -45,18 +45,18 @@ export default function Orders() {
                   </div>
                 </div>
               </div>
-              <div className="bg-gray-50 rounded-xl p-3 text-xs space-y-1">
+              <div className="bg-slate-50 rounded-2xl p-4 text-xs space-y-2">
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Link:</span>
-                  <span className="text-gray-900 font-medium truncate ml-2">{order.link}</span>
+                  <span className="text-slate-500">Link:</span>
+                  <span className="text-slate-900 font-medium truncate ml-2">{order.link}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Quantity:</span>
-                  <span className="text-gray-900 font-medium">{order.quantity}</span>
+                  <span className="text-slate-500">Quantity:</span>
+                  <span className="text-slate-900 font-medium">{order.quantity}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-500">Date:</span>
-                  <span className="text-gray-900 font-medium">{new Date(order.createdAt).toLocaleDateString()}</span>
+                  <span className="text-slate-500">Date:</span>
+                  <span className="text-slate-900 font-medium">{new Date(order.createdAt).toLocaleDateString()}</span>
                 </div>
               </div>
             </div>

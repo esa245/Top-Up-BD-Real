@@ -64,6 +64,7 @@ interface AppState {
   addReferralClaim: (referredUserIdOrEmail: string) => Promise<{ success: boolean; message: string }>;
   approveReferralClaim: (id: string, amount: number) => Promise<void>;
   rejectReferralClaim: (id: string) => Promise<void>;
+  restoreData: (data: any) => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -286,8 +287,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     await update(ref(db, `referralClaims/${id}`), { status: 'Rejected' });
   };
 
+  const restoreData = async (data: any) => {
+    if (!data) return;
+    if (data.users) await set(ref(db, 'users'), data.users);
+    if (data.transactions) await set(ref(db, 'transactions'), data.transactions);
+    if (data.orders) await set(ref(db, 'orders'), data.orders);
+    if (data.referralClaims) await set(ref(db, 'referralClaims'), data.referralClaims);
+  };
+
   return (
-    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, addReferralClaim, approveReferralClaim, rejectReferralClaim }}>
+    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, addReferralClaim, approveReferralClaim, rejectReferralClaim, restoreData }}>
       {children}
     </AppContext.Provider>
   );

@@ -21,10 +21,10 @@ export default function Support() {
       </div>
 
       <div className="space-y-2">
-        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-900 to-indigo-600">
+        <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-indigo-600">
           Need Help?
         </h2>
-        <p className="text-gray-500 text-sm px-4 leading-relaxed">
+        <p className="text-slate-500 text-sm px-4 leading-relaxed">
           Our support team is highly responsive and available 24/7 to assist you with your orders or payments.
         </p>
       </div>
@@ -65,20 +65,20 @@ export default function Support() {
       {/* Email Section */}
       <div className="w-full space-y-3 pt-6">
         <div className="flex items-center justify-center gap-2">
-          <div className="h-px bg-gray-200 flex-1"></div>
-          <h3 className="font-bold text-gray-400 text-xs uppercase tracking-wider">Or email us directly</h3>
-          <div className="h-px bg-gray-200 flex-1"></div>
+          <div className="h-px bg-slate-200 flex-1"></div>
+          <h3 className="font-bold text-slate-400 text-xs uppercase tracking-wider">Or email us directly</h3>
+          <div className="h-px bg-slate-200 flex-1"></div>
         </div>
         <a 
           href="mailto:im.softwark.team@gmail.com"
           onClick={handleCopyEmail}
-          className="w-full group bg-white border-2 border-gray-100 rounded-2xl p-5 flex flex-col items-center justify-center gap-2 text-gray-700 font-medium cursor-pointer hover:border-indigo-100 hover:bg-indigo-50/50 transition-all shadow-sm"
+          className="w-full group bg-white border-2 border-slate-100 rounded-3xl p-5 flex flex-col items-center justify-center gap-2 text-slate-700 font-medium cursor-pointer hover:border-indigo-100 hover:bg-indigo-50/50 transition-all shadow-sm"
         >
-          <div className="bg-gray-50 group-hover:bg-indigo-100 p-3 rounded-full transition-colors">
-            <Mail size={24} className="text-gray-500 group-hover:text-indigo-600 transition-colors" />
+          <div className="bg-slate-50 group-hover:bg-indigo-100 p-3 rounded-full transition-colors">
+            <Mail size={24} className="text-slate-500 group-hover:text-indigo-600 transition-colors" />
           </div>
-          <span className="text-gray-900 font-bold">im.softwark.team@gmail.com</span>
-          <span className="text-[10px] text-gray-400">Tap to copy & open mail app</span>
+          <span className="text-slate-900 font-bold">im.softwark.team@gmail.com</span>
+          <span className="text-[10px] text-slate-400">Tap to copy & open mail app</span>
         </a>
       </div>
 

@@ -83,21 +83,21 @@ export default function Profile() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-gray-50 rounded-2xl p-5 text-center space-y-1">
-          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">CURRENT BALANCE</div>
+        <div className="bg-slate-50 rounded-3xl p-5 text-center space-y-1 border border-slate-100">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CURRENT BALANCE</div>
           <div className="text-xl font-bold text-emerald-500">৳{currentUser.balance.toFixed(2)}</div>
         </div>
-        <div className="bg-gray-50 rounded-2xl p-5 text-center space-y-1">
-          <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">TOTAL SPENT</div>
+        <div className="bg-slate-50 rounded-3xl p-5 text-center space-y-1 border border-slate-100">
+          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL SPENT</div>
           <div className="text-xl font-bold text-indigo-600">৳{currentUser.totalSpent.toFixed(2)}</div>
         </div>
       </div>
 
       {/* Refer a Friend */}
-      <div className="bg-white border border-gray-100 rounded-3xl p-6 space-y-4 shadow-sm">
+      <div className="bg-white border border-slate-200 rounded-3xl p-6 space-y-4 shadow-sm">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
               <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="3" y="8" width="18" height="12" rx="2" ry="2"></rect>
                 <path d="M12 8v12"></path>
@@ -105,14 +105,14 @@ export default function Profile() {
                 <path d="M12.5 3a2.5 2.5 0 0 1 5 5h-5V3z"></path>
               </svg>
             </div>
-            <h3 className="font-bold text-gray-900">Refer a Friend</h3>
+            <h3 className="font-bold text-slate-900">Refer a Friend</h3>
           </div>
-          <button className="w-10 h-10 bg-purple-50 text-purple-600 rounded-full flex items-center justify-center hover:bg-purple-100 transition-colors">
+          <button className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-full flex items-center justify-center hover:bg-indigo-100 transition-colors">
             <Share2 size={18} />
           </button>
         </div>
 
-        <p className="text-sm text-gray-600 leading-relaxed">
+        <p className="text-sm text-slate-600 leading-relaxed">
           আপনার বন্ধুকে শেয়ার করুন ও তার ৬ সংখ্যার ইউজার আইডি এখানে লিখুন এবং জিতে নিন ৫ টাকা
         </p>
 
@@ -122,11 +122,11 @@ export default function Profile() {
             value={referralId}
             onChange={(e) => setReferralId(e.target.value)}
             placeholder="বন্ধুর ইউজার আইডি"
-            className="flex-1 bg-gray-50 border border-transparent rounded-xl px-4 text-sm focus:outline-none focus:ring-2 focus:ring-purple-500 focus:bg-white transition-all"
+            className="flex-1 bg-white border border-slate-200 rounded-2xl px-4 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all shadow-sm"
           />
           <button 
             onClick={handleReferralSubmit}
-            className="bg-[#8B5CF6] text-white font-bold px-6 py-3 rounded-xl hover:bg-purple-600 transition-colors"
+            className="bg-indigo-600 text-white font-bold px-6 py-3 rounded-2xl hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-100 active:scale-95"
           >
             Submit
           </button>
@@ -134,27 +134,27 @@ export default function Profile() {
       </div>
 
       {/* Menu List */}
-      <div className="bg-white border border-gray-100 rounded-3xl overflow-hidden shadow-sm">
-        <button className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+      <div className="bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-sm">
+        <button className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors border-b border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center">
               <FileText size={20} />
             </div>
-            <span className="font-bold text-gray-900">Payment History</span>
+            <span className="font-bold text-slate-900">Payment History</span>
           </div>
-          <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
 
-        <button className="w-full flex items-center justify-between p-5 hover:bg-gray-50 transition-colors border-b border-gray-50">
+        <button className="w-full flex items-center justify-between p-5 hover:bg-slate-50 transition-colors border-b border-slate-100">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-gray-100 text-gray-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-slate-100 text-slate-500 rounded-2xl flex items-center justify-center">
               <Settings size={20} />
             </div>
-            <span className="font-bold text-gray-900">Settings</span>
+            <span className="font-bold text-slate-900">Settings</span>
           </div>
-          <svg viewBox="0 0 24 24" className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <svg viewBox="0 0 24 24" className="w-5 h-5 text-slate-300" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="9 18 15 12 9 6"></polyline>
           </svg>
         </button>
@@ -164,7 +164,7 @@ export default function Profile() {
           className="w-full flex items-center justify-between p-5 hover:bg-red-50 transition-colors"
         >
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 bg-red-50 text-red-500 rounded-xl flex items-center justify-center">
+            <div className="w-10 h-10 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center">
               <LogOut size={20} />
             </div>
             <span className="font-bold text-red-500">Logout</span>
