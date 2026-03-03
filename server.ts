@@ -6,12 +6,13 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const app = express();
+export default app;
 const PORT = 3000;
 
 app.use(express.json());
 
 const SMM_API_KEY = (process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b30").trim();
-const SMM_API_URL = (process.env.SMM_API_URL || "https://motherpanel.com/api/v2").trim();
+const SMM_API_URL = (process.env.SMM_API_URL || "https://motherpanel.com/api/v2").trim().replace(/\/$/, "");
 
 // API routes
 app.get("/api/health", async (req, res) => {
@@ -41,8 +42,10 @@ app.get("/api/services", async (req, res) => {
     const response = await axios.post(SMM_API_URL, params.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'User-Agent': 'SMM-Panel-Client/1.0'
+      },
+      timeout: 15000
     });
 
     if (response.data && response.data.error) {
@@ -87,8 +90,10 @@ app.post("/api/order", async (req, res) => {
     const response = await axios.post(SMM_API_URL, params.toString(), {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
-        'Accept': 'application/json'
-      }
+        'Accept': 'application/json',
+        'User-Agent': 'SMM-Panel-Client/1.0'
+      },
+      timeout: 15000
     });
 
     if (response.data && response.data.error) {
@@ -124,8 +129,9 @@ app.get("/api/status/:id", async (req, res) => {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'Accept': 'application/json',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
-      }
+        'User-Agent': 'SMM-Panel-Client/1.0'
+      },
+      timeout: 15000
     });
     res.json(response.data);
   } catch (error: any) {
@@ -156,6 +162,8 @@ if (process.env.NODE_ENV !== "production") {
   });
 }
 
-app.listen(PORT, "0.0.0.0", () => {
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+if (process.env.NODE_ENV !== "test" && !process.env.VERCEL) {
+  app.listen(PORT, "0.0.0.0", () => {
+    console.log(`Server running on http://localhost:${PORT}`);
+  });
+}

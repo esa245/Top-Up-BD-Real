@@ -237,6 +237,11 @@ export default function NewOrder() {
             <div className="flex items-center gap-3 text-[10px] font-bold">
               <span className={!apiError ? "text-emerald-500" : "text-red-500"}>
                 {!apiError ? "Connected" : `API Error: ${typeof apiError === 'string' ? apiError : JSON.stringify(apiError)}`}
+                {apiError && typeof apiError === 'string' && apiError.toLowerCase().includes('key') && (
+                  <span className="block text-[8px] text-red-400 mt-1">
+                    Tip: Check your SMM_API_KEY in Vercel/Environment settings.
+                  </span>
+                )}
               </span>
               <button 
                 onClick={fetchServices}
