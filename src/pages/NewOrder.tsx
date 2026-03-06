@@ -443,6 +443,19 @@ export default function NewOrder() {
             'Submit Order'
           )}
         </button>
+
+        {/* Important Instructions */}
+        <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3 shadow-sm">
+          <div className="flex items-center gap-2 text-amber-800 font-black text-sm">
+            <span>⚠ গুরুত্বপূর্ণ নির্দেশনা :</span>
+          </div>
+          <div className="space-y-2 text-xs text-amber-900/80 font-bold leading-relaxed">
+            <p>★ একই লিংকের জন্য এক সাথে একাধিক অর্ডার করবেন না। ডুপ্লিকেট অর্ডারের টাকা ফেরত দেওয়া হবে না।</p>
+            <p>★ ভুল লিংক দিলে, অ্যাকাউন্ট ডেড থাকলে, বা ফলো বাটন না থাকলে সেই অর্ডারের টাকা ফেরত দেওয়া হবে না।</p>
+            <p>★ বেশি অর্ডার থাকলে (High demand) অর্ডার শুরু হতে এবং স্পিডে কিছু সময় লাগতে পারে।</p>
+            <p className="pt-1 text-indigo-600">পেমেন্ট বা অর্ডার সংক্রান্ত কোনো সমস্যা হলে Support বাটনে ক্লিক করুন।</p>
+          </div>
+        </div>
       </div>
 
     </div>
