@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, FileText, Settings, LogOut, MessageCircle } from 'lucide-react';
+import { Share2, FileText, Settings, LogOut, MessageCircle, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
@@ -170,6 +170,27 @@ export default function Profile() {
             <span className="font-bold text-red-500">Logout</span>
           </div>
         </button>
+      </div>
+
+      {/* App Download Link */}
+      <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-3xl p-6 text-white shadow-xl">
+        <div className="flex items-center gap-4 mb-4">
+          <div className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center">
+            <Download size={24} />
+          </div>
+          <div>
+            <h3 className="font-bold text-lg">Official Android App</h3>
+            <p className="text-slate-400 text-xs">Install our APK for the best experience</p>
+          </div>
+        </div>
+        <a 
+          href="https://drive.google.com/file/d/10KEwnLK_pDQ2giM6tsrdsyRyvAXZMj7y/view?usp=drivesdk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block w-full bg-emerald-500 text-white font-bold text-center py-4 rounded-2xl hover:bg-emerald-600 transition-colors shadow-lg shadow-emerald-900/20"
+        >
+          Download APK Now
+        </a>
       </div>
     </div>
   );

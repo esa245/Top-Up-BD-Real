@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ChevronDown, Info, Loader2, Search, User, Wallet, ShoppingBag, CreditCard, Send, List, Zap } from 'lucide-react';
+import { ChevronDown, Info, Loader2, Search, User, Wallet, ShoppingBag, CreditCard, Send, List, Zap, Download } from 'lucide-react';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
 import axios from 'axios';
@@ -231,6 +231,29 @@ export default function NewOrder() {
   return (
     <div className="min-h-screen bg-[#f8f9fb] pb-20 p-4">
       <div className="max-w-2xl mx-auto space-y-6">
+        {/* App Download Banner */}
+        <a 
+          href="https://drive.google.com/file/d/10KEwnLK_pDQ2giM6tsrdsyRyvAXZMj7y/view?usp=drivesdk"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="block bg-gradient-to-r from-indigo-600 to-purple-600 rounded-3xl p-4 text-white shadow-lg shadow-indigo-100 hover:scale-[1.02] transition-transform"
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="bg-white/20 p-2 rounded-xl">
+                <Download size={20} />
+              </div>
+              <div>
+                <div className="font-black text-sm uppercase tracking-wider">Download Our App</div>
+                <div className="text-[10px] font-medium opacity-80">Install for faster access & better experience</div>
+              </div>
+            </div>
+            <div className="bg-white text-indigo-600 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase">
+              Install
+            </div>
+          </div>
+        </a>
+
         {/* Category */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">

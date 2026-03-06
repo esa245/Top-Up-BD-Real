@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { TrendingUp, Clock, Wallet, HeadphonesIcon, User } from "lucide-react";
+import { TrendingUp, Clock, Wallet, HeadphonesIcon, User, Download } from "lucide-react";
 import { useAppContext } from "../store";
 
 export default function Layout() {
@@ -39,6 +39,15 @@ export default function Layout() {
           <h1 className="text-xl font-bold text-gray-900">Top Up BD</h1>
         </div>
         <div className="flex items-center gap-3">
+          <a 
+            href="https://drive.google.com/file/d/10KEwnLK_pDQ2giM6tsrdsyRyvAXZMj7y/view?usp=drivesdk"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="bg-emerald-50 text-emerald-600 p-2 rounded-xl hover:bg-emerald-100 transition-colors"
+            title="Download App"
+          >
+            <Download size={20} />
+          </a>
           <div className="text-right">
             <div className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
               Balance

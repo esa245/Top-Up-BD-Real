@@ -13,7 +13,8 @@ import {
   MessageCircle,
   CheckCircle2,
   PlayCircle,
-  ArrowRight
+  ArrowRight,
+  Download
 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -224,6 +225,17 @@ export default function Login() {
                   <ArrowRight size={18} />
                 </button>
               </form>
+
+              <div className="mt-6">
+                <a 
+                  href="https://drive.google.com/file/d/10KEwnLK_pDQ2giM6tsrdsyRyvAXZMj7y/view?usp=drivesdk"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-indigo-50 text-indigo-600 font-bold rounded-xl py-4 hover:bg-indigo-100 transition-all border border-indigo-100 flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
+                >
+                  <Download size={18} /> Download APK App
+                </a>
+              </div>
 
               <div className="mt-8 text-center">
                 <p className="text-gray-500 text-sm font-medium">
