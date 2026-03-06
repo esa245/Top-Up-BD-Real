@@ -36,22 +36,22 @@ export default function Login() {
     if (isLoginMode) {
       if (email.trim() && password.trim()) {
         await login(email.trim(), '', password.trim());
-        toast.success('Welcome back!');
+        toast.success('আপনাকে স্বাগতম!');
         navigate('/');
       } else {
-        toast.error('Please fill in all fields');
+        toast.error('অনুগ্রহ করে সব ঘর পূরণ করুন');
       }
     } else {
       if (email.trim() && name.trim() && password.trim() && username.trim()) {
         if (password !== confirmPassword) {
-          toast.error('Passwords do not match');
+          toast.error('পাসওয়ার্ড মিলছে না');
           return;
         }
         await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim());
-        toast.success('Account created successfully!');
+        toast.success('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!');
         navigate('/');
       } else {
-        toast.error('Please fill in all fields');
+        toast.error('অনুগ্রহ করে সব ঘর পূরণ করুন');
       }
     }
   };
@@ -60,7 +60,7 @@ export default function Login() {
     <div className="min-h-screen bg-[#f0f9ff] font-sans pb-20">
       {/* Top Banner */}
       <div className="bg-emerald-600 text-white py-2 px-4 text-center text-xs font-bold tracking-widest uppercase">
-        Best SMM Panel in Bangladesh - Top Up BD
+        বাংলাদেশের সেরা SMM প্যানেল - Top Up BD
       </div>
 
       {/* Main Container */}
@@ -74,15 +74,15 @@ export default function Login() {
                 <div className="w-12 h-12 bg-emerald-600 text-white rounded-xl flex items-center justify-center shadow-lg">
                   <TrendingUp size={24} />
                 </div>
-                <h1 className="text-3xl font-black text-gray-900 tracking-tighter uppercase">Top Up BD</h1>
+                <h1 className="text-3xl font-black text-gray-900 tracking-tighter uppercase">টপ আপ বিডি</h1>
               </div>
               <h2 className="text-4xl md:text-5xl font-black text-gray-900 leading-tight">
-                Your Ultimate Destination for <br />
-                <span className="text-emerald-600">Social Media Success!</span>
+                আপনার সোশ্যাল মিডিয়া <br />
+                <span className="text-emerald-600">সাফল্যের চূড়ান্ত গন্তব্য!</span>
               </h2>
               <p className="text-gray-600 text-lg leading-relaxed max-w-xl">
-                In the digital age, having a strong online presence is essential for any business looking to thrive. 
-                Unlocking the secrets of SMM services is like opening a treasure chest of opportunities for your brand.
+                ডিজিটাল যুগে, যেকোনো ব্যবসার উন্নতির জন্য শক্তিশালী অনলাইন উপস্থিতি অপরিহার্য। 
+                SMM সার্ভিসের গোপন রহস্য উন্মোচন করা মানে আপনার ব্র্যান্ডের জন্য সুযোগের ভাণ্ডার খুলে দেওয়া।
               </p>
             </div>
 
@@ -90,7 +90,7 @@ export default function Login() {
             <div className="relative aspect-video bg-gray-900 rounded-[2rem] overflow-hidden shadow-2xl group cursor-pointer border-4 border-white">
               <img 
                 src="https://picsum.photos/seed/smm/800/450" 
-                alt="Tutorial" 
+                alt="টিউটোরিয়াল" 
                 className="w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700"
                 referrerPolicy="no-referrer"
               />
@@ -98,17 +98,17 @@ export default function Login() {
                 <div className="w-20 h-20 bg-emerald-600 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform">
                   <PlayCircle size={48} fill="currentColor" className="text-white" />
                 </div>
-                <p className="font-bold text-xl tracking-tight">How to order in Top Up BD</p>
+                <p className="font-bold text-xl tracking-tight">কিভাবে টপ আপ বিডি-তে অর্ডার করবেন</p>
               </div>
             </div>
 
             {/* Features Grid */}
             <div className="grid sm:grid-cols-2 gap-4">
               {[
-                { icon: <Zap className="text-yellow-500" />, title: "Instant Delivery", desc: "Orders processed automatically" },
-                { icon: <ShieldCheck className="text-emerald-500" />, title: "Secure System", desc: "100% safe and encrypted" },
-                { icon: <HeadphonesIcon className="text-blue-500" />, title: "24/7 Support", desc: "Always here to help you" },
-                { icon: <CheckCircle2 className="text-purple-500" />, title: "Quality Service", desc: "Real and active results" }
+                { icon: <Zap className="text-yellow-500" />, title: "তাৎক্ষণিক ডেলিভারি", desc: "অর্ডার স্বয়ংক্রিয়ভাবে প্রসেস করা হয়" },
+                { icon: <ShieldCheck className="text-emerald-500" />, title: "নিরাপদ সিস্টেম", desc: "১০০% নিরাপদ এবং এনক্রিপ্টেড" },
+                { icon: <HeadphonesIcon className="text-blue-500" />, title: "২৪/৭ সাপোর্ট", desc: "আপনাকে সাহায্য করার জন্য আমরা সব সময় আছি" },
+                { icon: <CheckCircle2 className="text-purple-500" />, title: "মানসম্মত সার্ভিস", desc: "আসল এবং সক্রিয় ফলাফল" }
               ].map((feature, i) => (
                 <div key={i} className="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-start gap-4">
                   <div className="p-2 bg-gray-50 rounded-lg">{feature.icon}</div>
@@ -126,10 +126,10 @@ export default function Login() {
             <div className="p-8 md:p-12">
               <div className="mb-10 text-center">
                 <h2 className="text-3xl font-black text-gray-900 mb-2">
-                  {isLoginMode ? 'Welcome Back' : 'Create Account'}
+                  {isLoginMode ? 'স্বাগতম' : 'অ্যাকাউন্ট তৈরি করুন'}
                 </h2>
                 <p className="text-gray-500 font-medium">
-                  {isLoginMode ? 'Enter your credentials to access your panel' : 'Join the best SMM panel in Bangladesh'}
+                  {isLoginMode ? 'আপনার প্যানেলে প্রবেশ করতে তথ্য দিন' : 'বাংলাদেশের সেরা SMM প্যানেলে যোগ দিন'}
                 </p>
               </div>
 
@@ -138,28 +138,28 @@ export default function Login() {
                   <>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Full Name</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পুরো নাম</label>
                         <div className="relative">
                           <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
                           <input 
                             type="text" 
                             value={name}
                             onChange={(e) => setName(e.target.value)}
-                            placeholder="John Doe"
+                            placeholder="আপনার নাম লিখুন"
                             required
                             className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           />
                         </div>
                       </div>
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Username</label>
+                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ইউজারনেম</label>
                         <div className="relative">
                           <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
                           <input 
                             type="text" 
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            placeholder="johndoe123"
+                            placeholder="ইউজারনেম দিন"
                             required
                             className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           />
@@ -170,14 +170,14 @@ export default function Login() {
                 )}
 
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Email Address</label>
+                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ইমেইল অ্যাড্রেস</label>
                   <div className="relative">
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
                     <input 
                       type="email" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="name@example.com"
+                      placeholder="আপনার ইমেইল দিন"
                       required
                       className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                     />
@@ -186,7 +186,7 @@ export default function Login() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Password</label>
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পাসওয়ার্ড</label>
                     <div className="relative">
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
                       <input 
@@ -201,7 +201,7 @@ export default function Login() {
                   </div>
                   {!isLoginMode && (
                     <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">Confirm Password</label>
+                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পাসওয়ার্ড নিশ্চিত করুন</label>
                       <div className="relative">
                         <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
                         <input 
@@ -221,7 +221,7 @@ export default function Login() {
                   type="submit"
                   className="w-full bg-emerald-600 text-white font-black rounded-xl py-4 mt-4 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-[0.98] uppercase tracking-widest text-sm flex items-center justify-center gap-2"
                 >
-                  {isLoginMode ? 'Login to Panel' : 'Create My Account'}
+                  {isLoginMode ? 'প্যানেলে লগইন করুন' : 'আমার অ্যাকাউন্ট তৈরি করুন'}
                   <ArrowRight size={18} />
                 </button>
               </form>
@@ -233,18 +233,18 @@ export default function Login() {
                   rel="noopener noreferrer"
                   className="w-full bg-indigo-50 text-indigo-600 font-bold rounded-xl py-4 hover:bg-indigo-100 transition-all border border-indigo-100 flex items-center justify-center gap-2 text-sm uppercase tracking-wider"
                 >
-                  <Download size={18} /> Download APK App
+                  <Download size={18} /> APK অ্যাপ ডাউনলোড করুন
                 </a>
               </div>
 
               <div className="mt-8 text-center">
                 <p className="text-gray-500 text-sm font-medium">
-                  {isLoginMode ? "Don't have an account?" : "Already have an account?"}
+                  {isLoginMode ? "অ্যাকাউন্ট নেই?" : "আগে থেকেই অ্যাকাউন্ট আছে?"}
                   <button 
                     onClick={() => setIsLoginMode(!isLoginMode)}
                     className="ml-2 text-emerald-600 font-bold hover:underline"
                   >
-                    {isLoginMode ? 'Sign Up' : 'Login'}
+                    {isLoginMode ? 'সাইন আপ' : 'লগইন'}
                   </button>
                 </p>
               </div>
@@ -269,7 +269,7 @@ export default function Login() {
 
       {/* Floating WhatsApp Button */}
       <a 
-        href="https://wa.me/88017XXXXXXXX" 
+        href="https://wa.me/8801753567152" 
         target="_blank" 
         rel="noopener noreferrer"
         className="fixed bottom-8 right-8 w-16 h-16 bg-[#25D366] text-white rounded-full flex items-center justify-center shadow-2xl hover:scale-110 transition-transform z-50 animate-bounce"

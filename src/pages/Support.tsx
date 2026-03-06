@@ -47,7 +47,7 @@ export default function Support() {
         </a>
 
         <a 
-          href="https://chat.whatsapp.com/JMVX7Q5csQ886JzYxqCIBs"
+          href="https://wa.me/8801753567152"
           target="_blank"
           rel="noopener noreferrer"
           className="w-full group relative overflow-hidden bg-gradient-to-r from-[#25D366] to-[#128C7E] text-white font-bold rounded-2xl p-4 flex items-center justify-between hover:shadow-lg hover:shadow-green-200 transition-all active:scale-[0.98]"
@@ -56,7 +56,7 @@ export default function Support() {
             <div className="bg-white/20 p-2 rounded-xl">
               <MessageCircle size={24} />
             </div>
-            <span className="text-lg">Join WhatsApp Group</span>
+            <span className="text-lg">Message on WhatsApp</span>
           </div>
           <ExternalLink size={20} className="opacity-50 group-hover:opacity-100 transition-opacity relative z-10" />
         </a>
