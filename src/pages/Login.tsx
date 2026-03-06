@@ -22,7 +22,6 @@ export default function Login() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [username, setUsername] = useState('');
-  const [whatsapp, setWhatsapp] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [userId, setUserId] = useState('');
@@ -42,12 +41,12 @@ export default function Login() {
         toast.error('Please fill in all fields');
       }
     } else {
-      if (email.trim() && name.trim() && password.trim() && username.trim() && whatsapp.trim()) {
+      if (email.trim() && name.trim() && password.trim() && username.trim()) {
         if (password !== confirmPassword) {
           toast.error('Passwords do not match');
           return;
         }
-        await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim(), whatsapp.trim());
+        await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim());
         toast.success('Account created successfully!');
         navigate('/');
       } else {
@@ -164,21 +163,6 @@ export default function Login() {
                             className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
                           />
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">WhatsApp Number</label>
-                      <div className="relative">
-                        <MessageCircle className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                        <input 
-                          type="tel" 
-                          value={whatsapp}
-                          onChange={(e) => setWhatsapp(e.target.value)}
-                          placeholder="017XXXXXXXX"
-                          required
-                          className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                        />
                       </div>
                     </div>
                   </>
