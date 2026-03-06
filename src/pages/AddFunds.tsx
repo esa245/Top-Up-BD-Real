@@ -21,9 +21,10 @@ export default function AddFunds() {
   const bkashNumber = settings.bkashNumber;
 
   const currentNumber = selectedMethod === 'nagad' ? nagadNumber : bkashNumber;
-  const vatRate = 0.35; // 35% VAT
+  const feeRate = 0.10; // 10% Fee (including 2 BDT base logic as per user examples)
   const parsedAmount = parseFloat(amount) || 0;
-  const totalAmountToPay = parsedAmount + (parsedAmount * vatRate);
+  const fee = parsedAmount * feeRate;
+  const totalAmountToPay = parsedAmount + fee;
 
   const handleCopyNumber = () => {
     navigator.clipboard.writeText(currentNumber);
@@ -108,8 +109,8 @@ export default function AddFunds() {
               <span className="font-bold">৳{parsedAmount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between items-center text-sm">
-              <span className="text-slate-600">ভ্যাট (৩৫%):</span>
-              <span className="font-bold">৳{(parsedAmount * vatRate).toFixed(2)}</span>
+              <span className="text-slate-600">সার্ভিস চার্জ (১০%):</span>
+              <span className="font-bold">৳{fee.toFixed(2)}</span>
             </div>
             <div className="h-px bg-indigo-200/50"></div>
             <div className="flex justify-between items-center text-lg">
@@ -166,7 +167,7 @@ export default function AddFunds() {
           </li>
           <li className="flex items-start gap-2">
             <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1.5 shrink-0"></span>
-            <span>ভ্যাট (৩৫%) সহ মোট কত টাকা পাঠাতে হবে তা নিচে দেখতে পাবেন।</span>
+            <span>সার্ভিস চার্জ (১০%) সহ মোট কত টাকা পাঠাতে হবে তা নিচে দেখতে পাবেন।</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full mt-1.5 shrink-0"></span>
