@@ -9,6 +9,15 @@ const app = express();
 export default app;
 const PORT = 3000;
 
+// Global error handlers
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
+
 app.use(express.json());
 
 const SMM_API_KEY = (process.env.SMM_API_KEY || "dc906d24e90ac3cd272586ea2a3d3b30").trim();
@@ -34,7 +43,7 @@ app.get("/api/health", async (req, res) => {
 
 app.get("/api/services", async (req, res) => {
   try {
-    console.log(`Fetching services from: ${SMM_API_URL} using key starting with: ${SMM_API_KEY.substring(0, 4)}...`);
+    console.log(`Fetching services from: ${SMM_API_URL}`);
     const params = new URLSearchParams();
     params.append('key', SMM_API_KEY);
     params.append('action', 'services');
@@ -58,15 +67,13 @@ app.get("/api/services", async (req, res) => {
 
     res.json(response.data);
   } catch (error: any) {
+    console.error("SMM API Error (Services):", error.message);
     if (error.response) {
-      console.error("SMM API Error (Services):", error.response.status, error.response.data);
       res.status(error.response.status).json({ 
         error: `SMM Provider Error (${error.response.status})`, 
-        details: error.response.data,
-        message: typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)
+        details: error.response.data
       });
     } else {
-      console.error("SMM API Error (Services):", error.message);
       res.status(500).json({ error: "Failed to connect to SMM provider", message: error.message });
     }
   }
@@ -80,6 +87,7 @@ app.post("/api/order", async (req, res) => {
   }
 
   try {
+    console.log(`Placing order for service ${service} to ${SMM_API_URL}`);
     const params = new URLSearchParams();
     params.append('key', SMM_API_KEY);
     params.append('action', 'add');
@@ -103,16 +111,14 @@ app.post("/api/order", async (req, res) => {
 
     res.json(response.data);
   } catch (error: any) {
+    console.error("SMM API Error (Order):", error.message);
     if (error.response) {
-      console.error("SMM API Error (Order):", error.response.status, error.response.data);
       res.status(error.response.status).json({ 
         error: `SMM Provider Error (${error.response.status})`, 
-        details: error.response.data,
-        message: typeof error.response.data === 'string' ? error.response.data : JSON.stringify(error.response.data)
+        details: error.response.data
       });
     } else {
-      console.error("SMM API Error (Order):", error.message);
-      res.status(500).json({ error: "Failed to place order with SMM provider" });
+      res.status(500).json({ error: "Failed to place order with SMM provider", message: error.message });
     }
   }
 });
@@ -120,6 +126,7 @@ app.post("/api/order", async (req, res) => {
 app.get("/api/status/:id", async (req, res) => {
   const { id } = req.params;
   try {
+    console.log(`Checking status for order ${id} at ${SMM_API_URL}`);
     const params = new URLSearchParams();
     params.append('key', SMM_API_KEY);
     params.append('action', 'status');
@@ -133,17 +140,22 @@ app.get("/api/status/:id", async (req, res) => {
       },
       timeout: 15000
     });
+    
+    if (response.data && response.data.error) {
+      console.error(`SMM Provider error (Status ${id}):`, response.data.error);
+      return res.status(400).json({ error: response.data.error });
+    }
+    
     res.json(response.data);
   } catch (error: any) {
+    console.error(`SMM API Error (Status ${id}):`, error.message);
     if (error.response) {
-      console.error("SMM API Error (Status):", error.response.status, error.response.data);
       res.status(error.response.status).json({ 
         error: "SMM Provider Error", 
         details: error.response.data 
       });
     } else {
-      console.error("SMM API Error (Status):", error.message);
-      res.status(500).json({ error: "Failed to fetch order status" });
+      res.status(500).json({ error: "Failed to fetch order status", message: error.message });
     }
   }
 });

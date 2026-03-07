@@ -254,6 +254,16 @@ export default function NewOrder() {
           </div>
         </a>
 
+        {/* Taraweeh Notice */}
+        <div className="bg-indigo-50 border border-indigo-100 rounded-2xl p-3 flex items-center gap-3 animate-pulse">
+          <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
+            <Zap size={14} />
+          </div>
+          <p className="text-[11px] font-bold text-indigo-900 leading-tight">
+            এখন তারাবি নামাজ এর জন্য রাতে সার্ভার একটু স্লো থাকে, সার্ভিস পেতে একটু সময় লাগতে পারে।
+          </p>
+        </div>
+
         {/* Category */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">

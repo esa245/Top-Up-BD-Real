@@ -7,8 +7,17 @@ import toast from 'react-hot-toast';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
-  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData, updateSettings } = useAppContext();
+  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData, updateSettings, updateOrderStatus } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleStatusChange = async (orderId: string, newStatus: any) => {
+    try {
+      await updateOrderStatus(orderId, newStatus);
+      toast.success(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      toast.error('Failed to update order status');
+    }
+  };
   
   const [nagadInput, setNagadInput] = useState(settings.nagadNumber);
   const [bkashInput, setBkashInput] = useState(settings.bkashNumber);
@@ -340,9 +349,24 @@ export default function AdminDashboard() {
                         ৳{order.charge.toFixed(2)}
                       </div>
                       <div className="text-right">
-                        <span className="text-[10px] font-bold px-2 py-1 rounded-md text-orange-500 bg-orange-50">
-                          {order.status.toUpperCase()}
-                        </span>
+                        <select 
+                          value={order.status}
+                          onChange={(e) => handleStatusChange(order.id, e.target.value)}
+                          className={`text-[10px] font-bold px-2 py-1 rounded-md border-none focus:ring-2 focus:ring-indigo-500 cursor-pointer ${
+                            order.status === 'Pending' ? 'text-orange-500 bg-orange-50' :
+                            order.status === 'Processing' ? 'text-blue-500 bg-blue-50' :
+                            order.status === 'Completed' ? 'text-emerald-500 bg-emerald-50' :
+                            order.status === 'Cancelled' || order.status === 'Refunded' ? 'text-red-500 bg-red-50' :
+                            'text-gray-500 bg-gray-50'
+                          }`}
+                        >
+                          <option value="Pending">PENDING</option>
+                          <option value="Processing">PROCESSING</option>
+                          <option value="Completed">COMPLETED</option>
+                          <option value="Cancelled">CANCELLED</option>
+                          <option value="Partial">PARTIAL</option>
+                          <option value="Refunded">REFUNDED</option>
+                        </select>
                       </div>
                     </div>
                   ))

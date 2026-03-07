@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { db } from '../firebase';
 import { ref, onValue, set, update, get, child } from 'firebase/database';
+import axios from 'axios';
 
 export type TransactionStatus = 'Pending' | 'Approved' | 'Rejected';
 export type OrderStatus = 'Pending' | 'Processing' | 'Completed' | 'Cancelled' | 'Partial' | 'Refunded';
@@ -65,6 +66,7 @@ interface AppState {
   placeOrder: (service: string, link: string, quantity: number, charge: number, smmOrderId?: string) => Promise<boolean>;
   refreshOrders: () => Promise<void>;
   updateSettings: (nagad: string, bkash: string) => Promise<void>;
+  updateOrderStatus: (orderId: string, newStatus: OrderStatus) => Promise<void>;
   addReferralClaim: (referredUserIdOrEmail: string) => Promise<{ success: boolean; message: string }>;
   approveReferralClaim: (id: string, amount: number) => Promise<void>;
   rejectReferralClaim: (id: string) => Promise<void>;
@@ -78,11 +80,26 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const saved = localStorage.getItem('currentUser');
     return saved ? JSON.parse(saved) : null;
   });
-  const [users, setUsers] = useState<User[]>([]);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [referralClaims, setReferralClaims] = useState<ReferralClaim[]>([]);
-  const [settings, setSettings] = useState({ nagadNumber: '01792157184', bkashNumber: '01753567152' });
+  const [users, setUsers] = useState<User[]>(() => {
+    const saved = localStorage.getItem('backup_users');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [transactions, setTransactions] = useState<Transaction[]>(() => {
+    const saved = localStorage.getItem('backup_transactions');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [orders, setOrders] = useState<Order[]>(() => {
+    const saved = localStorage.getItem('backup_orders');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [referralClaims, setReferralClaims] = useState<ReferralClaim[]>(() => {
+    const saved = localStorage.getItem('backup_referralClaims');
+    return saved ? JSON.parse(saved) : [];
+  });
+  const [settings, setSettings] = useState(() => {
+    const saved = localStorage.getItem('backup_settings');
+    return saved ? JSON.parse(saved) : { nagadNumber: '01792157184', bkashNumber: '01753567152' };
+  });
 
   useEffect(() => {
     const usersRef = ref(db, 'users');
@@ -96,6 +113,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (data) {
         const usersList = Object.values(data) as User[];
         setUsers(usersList);
+        localStorage.setItem('backup_users', JSON.stringify(usersList));
         // Sync currentUser if it exists
         if (currentUser) {
           const updatedMe = usersList.find(u => u.id === currentUser.id);
@@ -103,27 +121,37 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } else {
         setUsers([]);
+        localStorage.removeItem('backup_users');
       }
     });
 
     const unsubscribeTxs = onValue(txsRef, (snapshot) => {
       const data = snapshot.val();
-      setTransactions(data ? (Object.values(data) as Transaction[]).reverse() : []);
+      const list = data ? (Object.values(data) as Transaction[]).reverse() : [];
+      setTransactions(list);
+      localStorage.setItem('backup_transactions', JSON.stringify(list));
     });
 
     const unsubscribeOrders = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
-      setOrders(data ? (Object.values(data) as Order[]).reverse() : []);
+      const list = data ? (Object.values(data) as Order[]).reverse() : [];
+      setOrders(list);
+      localStorage.setItem('backup_orders', JSON.stringify(list));
     });
 
     const unsubscribeReferrals = onValue(referralsRef, (snapshot) => {
       const data = snapshot.val();
-      setReferralClaims(data ? (Object.values(data) as ReferralClaim[]).reverse() : []);
+      const list = data ? (Object.values(data) as ReferralClaim[]).reverse() : [];
+      setReferralClaims(list);
+      localStorage.setItem('backup_referralClaims', JSON.stringify(list));
     });
 
     const unsubscribeSettings = onValue(settingsRef, (snapshot) => {
       const data = snapshot.val();
-      if (data) setSettings(data);
+      if (data) {
+        setSettings(data);
+        localStorage.setItem('backup_settings', JSON.stringify(data));
+      }
     });
 
     return () => {
@@ -235,6 +263,33 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     return true;
   };
 
+  const updateOrderStatus = async (orderId: string, newStatus: OrderStatus) => {
+    const orderRef = ref(db, `orders/${orderId}`);
+    const orderSnap = await get(orderRef);
+    const order = orderSnap.val() as Order;
+
+    if (!order || order.status === newStatus) return;
+
+    const oldStatus = order.status;
+    await update(orderRef, { status: newStatus });
+
+    // Refund logic: if moving TO Cancelled/Refunded FROM a non-refunded state
+    const isRefundStatus = (s: OrderStatus) => s === 'Cancelled' || s === 'Refunded';
+    
+    if (isRefundStatus(newStatus) && !isRefundStatus(oldStatus)) {
+      const userRef = ref(db, `users/${order.userId}`);
+      const userSnap = await get(userRef);
+      const user = userSnap.val() as User;
+      
+      if (user) {
+        await update(userRef, { 
+          balance: user.balance + order.charge,
+          totalSpent: Math.max(0, user.totalSpent - order.charge)
+        });
+      }
+    }
+  };
+
   const refreshOrders = async () => {
     if (!currentUser) return;
     
@@ -248,8 +303,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
     for (const order of pendingOrders) {
       try {
-        const response = await fetch(`/api/status/${order.smmOrderId}`);
-        const data = await response.json();
+        // Add a small delay between requests to avoid overwhelming the server
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        const response = await axios.get(`/api/status/${order.smmOrderId}`);
+        const data = response.data;
         
         if (data && data.status) {
           let newStatus: OrderStatus = order.status;
@@ -263,11 +321,12 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
           else if (smmStatus.includes('refund')) newStatus = 'Refunded';
           
           if (newStatus !== order.status) {
-            await update(ref(db, `orders/${order.id}`), { status: newStatus });
+            await updateOrderStatus(order.id, newStatus);
           }
         }
-      } catch (error) {
-        console.error(`Failed to refresh order ${order.id}:`, error);
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.error || error.message || error;
+        console.error(`Failed to refresh order ${order.id}:`, errorMessage);
       }
     }
   };
@@ -350,7 +409,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, addReferralClaim, approveReferralClaim, rejectReferralClaim, restoreData }}>
+    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, updateOrderStatus, addReferralClaim, approveReferralClaim, rejectReferralClaim, restoreData }}>
       {children}
     </AppContext.Provider>
   );
