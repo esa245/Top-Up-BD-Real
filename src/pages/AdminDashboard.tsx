@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Download, Upload, Settings as SettingsIcon, Save } from 'lucide-react';
+import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Download, Upload, Settings as SettingsIcon, Save, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
@@ -7,7 +7,7 @@ import toast from 'react-hot-toast';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
-  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData, updateSettings, updateOrderStatus } = useAppContext();
+  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, restoreData, updateSettings, updateOrderStatus, updateUserBalance } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
 
   const handleStatusChange = async (orderId: string, newStatus: any) => {
@@ -18,17 +18,27 @@ export default function AdminDashboard() {
       toast.error('Failed to update order status');
     }
   };
+
+  const handleUpdateBalance = async (userId: string, currentBalance: number) => {
+    const amount = prompt('নতুন ব্যালেন্স লিখুন (৳):', currentBalance.toString());
+    if (amount === null) return;
+
+    const parsedAmount = parseFloat(amount);
+    if (!isNaN(parsedAmount) && parsedAmount >= 0) {
+      try {
+        await updateUserBalance(userId, parsedAmount);
+        toast.success('ব্যালেন্স আপডেট করা হয়েছে!');
+      } catch (error) {
+        toast.error('আপডেট করতে সমস্যা হয়েছে।');
+      }
+    } else {
+      toast.error('সঠিক সংখ্যা লিখুন।');
+    }
+  };
   
   const [nagadInput, setNagadInput] = useState(settings.nagadNumber);
   const [bkashInput, setBkashInput] = useState(settings.bkashNumber);
   const [savingSettings, setSavingSettings] = useState(false);
-
-  const maskEmail = (email: string) => {
-    if (!email) return 'N/A';
-    const [name, domain] = email.split('@');
-    if (!domain) return email;
-    return `${name.substring(0, 1)}***@${domain}`;
-  };
 
   const handleExport = () => {
     const data = {
@@ -272,7 +282,7 @@ export default function AdminDashboard() {
                         <div className="text-[10px] text-gray-400 uppercase">{tx.method}</div>
                       </div>
                       <div className="text-gray-500 text-xs">
-                        <div className="font-bold text-gray-700">{maskEmail(tx.userEmail)}</div>
+                        <div className="font-bold text-gray-700">{tx.userEmail || 'N/A'}</div>
                         <div className="text-indigo-600 font-mono">TrxID: {tx.trxId || 'N/A'}</div>
                         {new Date(tx.createdAt).toLocaleString()}
                       </div>
@@ -308,7 +318,7 @@ export default function AdminDashboard() {
                         <div className="text-[10px] text-gray-400 uppercase">{tx.method}</div>
                       </div>
                       <div className="text-gray-500 text-xs">
-                        <div className="font-bold text-gray-700">{maskEmail(tx.userEmail)}</div>
+                        <div className="font-bold text-gray-700">{tx.userEmail || 'N/A'}</div>
                         <div className="text-indigo-600 font-mono">TrxID: {tx.trxId || 'N/A'}</div>
                         {new Date(tx.createdAt).toLocaleString()}
                       </div>
@@ -342,7 +352,7 @@ export default function AdminDashboard() {
                     <div key={order.id} className="grid grid-cols-[2fr_1fr_auto] gap-4 p-4 items-center border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                       <div className="text-xs">
                         <div className="font-bold text-gray-900 line-clamp-1">{order.service}</div>
-                        <div className="text-gray-500">{maskEmail(order.userEmail)}</div>
+                        <div className="text-gray-500">{order.userEmail}</div>
                       </div>
                       <div className="text-xs text-gray-500">
                         <div className="font-bold text-gray-700">{order.quantity}</div>
@@ -377,23 +387,33 @@ export default function AdminDashboard() {
             {/* Users Tab */}
             {activeTab === 'users' && (
               <>
-                <div className="grid grid-cols-[2fr_1fr] gap-4 p-4 bg-gray-50/50 text-gray-500 font-bold text-xs uppercase tracking-wider border-b border-gray-100">
+                <div className="grid grid-cols-[2fr_1fr_auto] gap-4 p-4 bg-gray-50/50 text-gray-500 font-bold text-xs uppercase tracking-wider border-b border-gray-100">
                   <div>USER INFO</div>
                   <div className="text-right">BALANCE</div>
+                  <div className="text-right">ACTION</div>
                 </div>
                 {users.filter(u => u.email.includes(searchQuery) || u.id.includes(searchQuery)).length === 0 ? (
                   <div className="p-8 text-center text-gray-500">No users found.</div>
                 ) : (
                   users.filter(u => u.email.includes(searchQuery) || u.id.includes(searchQuery)).map(user => (
-                    <div key={user.id} className="grid grid-cols-[2fr_1fr] gap-4 p-4 items-center border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                    <div key={user.id} className="grid grid-cols-[2fr_1fr_auto] gap-4 p-4 items-center border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                       <div className="text-xs">
                         <div className="font-bold text-gray-900">{user.name} (@{user.username})</div>
-                        <div className="text-gray-500">{maskEmail(user.email)}</div>
+                        <div className="text-gray-500">{user.email}</div>
                         <div className="text-gray-400">ID: {user.id} | WA: {user.whatsapp || 'N/A'}</div>
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-emerald-500">৳{user.balance.toFixed(2)}</div>
                         <div className="text-[10px] text-gray-400">Spent: ৳{user.totalSpent.toFixed(2)}</div>
+                      </div>
+                      <div className="text-right">
+                        <button 
+                          onClick={() => handleUpdateBalance(user.id, user.balance)}
+                          className="p-2 rounded-lg bg-indigo-50 text-indigo-600 hover:bg-indigo-100 transition-colors"
+                          title="Edit Balance"
+                        >
+                          <Edit size={16} />
+                        </button>
                       </div>
                     </div>
                   ))
@@ -417,7 +437,7 @@ export default function AdminDashboard() {
                     return (
                       <div key={claim.id} className="grid grid-cols-[1fr_2fr_auto] gap-4 p-4 items-center border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
                         <div className="text-xs">
-                          <div className="font-bold text-gray-900">{maskEmail(claim.referrerEmail)}</div>
+                          <div className="font-bold text-gray-900">{claim.referrerEmail}</div>
                           <div className="text-gray-500">ID: {claim.referrerId}</div>
                         </div>
                         <div className="text-xs">

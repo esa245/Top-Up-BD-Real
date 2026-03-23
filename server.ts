@@ -65,7 +65,22 @@ app.get("/api/services", async (req, res) => {
       });
     }
 
-    res.json(response.data);
+    // Append " (Video)" to Facebook Post Reaction services and categories as requested by user
+    let services = response.data;
+    if (Array.isArray(services)) {
+      services = services.map((s: any) => {
+        let modified = { ...s };
+        if (s.name && s.name.toLowerCase().includes('facebook post reaction')) {
+          modified.name = `${s.name} (Video)`;
+        }
+        if (s.category && s.category.toLowerCase().includes('facebook post reaction')) {
+          modified.category = `${s.category} (Video)`;
+        }
+        return modified;
+      });
+    }
+
+    res.json(services);
   } catch (error: any) {
     console.error("SMM API Error (Services):", error.message);
     if (error.response) {
