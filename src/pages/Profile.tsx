@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, FileText, Settings, LogOut, MessageCircle, Download } from 'lucide-react';
+import { Share2, FileText, Settings, LogOut, MessageCircle, Download, Wallet, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
@@ -83,13 +83,23 @@ export default function Profile() {
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-slate-50 rounded-3xl p-5 text-center space-y-1 border border-slate-100">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CURRENT BALANCE</div>
-          <div className="text-xl font-bold text-emerald-500">৳{currentUser.balance.toFixed(2)}</div>
+        <div className="bg-white border border-indigo-100 rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center gap-2 text-indigo-600 mb-1">
+            <div className="w-6 h-6 bg-indigo-50 rounded-lg flex items-center justify-center">
+              <Wallet size={14} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider uppercase">Current Balance</span>
+          </div>
+          <div className="text-2xl font-black text-gray-900">৳{currentUser.balance.toFixed(2)}</div>
         </div>
-        <div className="bg-slate-50 rounded-3xl p-5 text-center space-y-1 border border-slate-100">
-          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TOTAL SPENT</div>
-          <div className="text-xl font-bold text-indigo-600">৳{currentUser.totalSpent.toFixed(2)}</div>
+        <div className="bg-white border border-emerald-100 rounded-3xl p-5 shadow-sm">
+          <div className="flex items-center gap-2 text-emerald-600 mb-1">
+            <div className="w-6 h-6 bg-emerald-50 rounded-lg flex items-center justify-center">
+              <TrendingUp size={14} />
+            </div>
+            <span className="text-[10px] font-bold tracking-wider uppercase">Total Spent</span>
+          </div>
+          <div className="text-2xl font-black text-gray-900">৳{currentUser.totalSpent.toFixed(2)}</div>
         </div>
       </div>
 

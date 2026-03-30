@@ -99,8 +99,20 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
   });
   const [settings, setSettings] = useState(() => {
     const saved = localStorage.getItem('backup_settings');
-    return saved ? JSON.parse(saved) : { nagadNumber: '01792157184', bkashNumber: '01753567152' };
+    return saved ? JSON.parse(saved) : { nagadNumber: '', bkashNumber: '' };
   });
+
+  useEffect(() => {
+    // Database Reset Logic: Clear old cache if switching to a new database
+    const currentDbId = "rn-incam";
+    const lastDbId = localStorage.getItem('app_db_id');
+    
+    if (lastDbId !== currentDbId) {
+      localStorage.clear();
+      localStorage.setItem('app_db_id', currentDbId);
+      window.location.reload();
+    }
+  }, []);
 
   useEffect(() => {
     const usersRef = ref(db, 'users');
@@ -187,7 +199,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         email,
         whatsapp: whatsapp || '',
         password,
-        balance: 2, // Signup bonus
+        balance: 0, // Signup bonus
         totalSpent: 0,
         createdAt: new Date().toISOString()
       };

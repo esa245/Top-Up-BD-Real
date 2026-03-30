@@ -403,8 +403,8 @@ export default function AdminDashboard() {
                         <div className="text-gray-400">ID: {user.id} | WA: {user.whatsapp || 'N/A'}</div>
                       </div>
                       <div className="text-right">
-                        <div className="font-bold text-emerald-500">৳{user.balance.toFixed(2)}</div>
-                        <div className="text-[10px] text-gray-400">Spent: ৳{user.totalSpent.toFixed(2)}</div>
+                        <div className="font-bold text-indigo-600">৳{user.balance.toFixed(2)}</div>
+                        <div className="text-[10px] text-gray-400 uppercase">Spent: ৳{user.totalSpent.toFixed(2)}</div>
                       </div>
                       <div className="text-right">
                         <button 
