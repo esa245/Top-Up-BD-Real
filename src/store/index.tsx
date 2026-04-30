@@ -71,7 +71,6 @@ interface AppState {
   approveReferralClaim: (id: string, amount: number) => Promise<void>;
   rejectReferralClaim: (id: string) => Promise<void>;
   updateUserBalance: (userId: string, newBalance: number) => Promise<void>;
-  restoreData: (data: any) => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -81,26 +80,11 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     const saved = localStorage.getItem('currentUser');
     return saved ? JSON.parse(saved) : null;
   });
-  const [users, setUsers] = useState<User[]>(() => {
-    const saved = localStorage.getItem('backup_users');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [transactions, setTransactions] = useState<Transaction[]>(() => {
-    const saved = localStorage.getItem('backup_transactions');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('backup_orders');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [referralClaims, setReferralClaims] = useState<ReferralClaim[]>(() => {
-    const saved = localStorage.getItem('backup_referralClaims');
-    return saved ? JSON.parse(saved) : [];
-  });
-  const [settings, setSettings] = useState(() => {
-    const saved = localStorage.getItem('backup_settings');
-    return saved ? JSON.parse(saved) : { nagadNumber: '', bkashNumber: '' };
-  });
+  const [users, setUsers] = useState<User[]>([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [referralClaims, setReferralClaims] = useState<ReferralClaim[]>([]);
+  const [settings, setSettings] = useState({ nagadNumber: '', bkashNumber: '' });
 
   useEffect(() => {
     // Database Reset Logic: Clear old cache if switching to a new database
@@ -126,7 +110,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       if (data) {
         const usersList = Object.values(data) as User[];
         setUsers(usersList);
-        localStorage.setItem('backup_users', JSON.stringify(usersList));
         // Sync currentUser if it exists
         if (currentUser) {
           const updatedMe = usersList.find(u => u.id === currentUser.id);
@@ -134,7 +117,6 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         }
       } else {
         setUsers([]);
-        localStorage.removeItem('backup_users');
       }
     });
 
@@ -142,28 +124,24 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
       const data = snapshot.val();
       const list = data ? (Object.values(data) as Transaction[]).reverse() : [];
       setTransactions(list);
-      localStorage.setItem('backup_transactions', JSON.stringify(list));
     });
 
     const unsubscribeOrders = onValue(ordersRef, (snapshot) => {
       const data = snapshot.val();
       const list = data ? (Object.values(data) as Order[]).reverse() : [];
       setOrders(list);
-      localStorage.setItem('backup_orders', JSON.stringify(list));
     });
 
     const unsubscribeReferrals = onValue(referralsRef, (snapshot) => {
       const data = snapshot.val();
       const list = data ? (Object.values(data) as ReferralClaim[]).reverse() : [];
       setReferralClaims(list);
-      localStorage.setItem('backup_referralClaims', JSON.stringify(list));
     });
 
     const unsubscribeSettings = onValue(settingsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         setSettings(data);
-        localStorage.setItem('backup_settings', JSON.stringify(data));
       }
     });
 
@@ -417,16 +395,8 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     await update(userRef, { balance: newBalance });
   };
 
-  const restoreData = async (data: any) => {
-    if (!data) return;
-    if (data.users) await set(ref(db, 'users'), data.users);
-    if (data.transactions) await set(ref(db, 'transactions'), data.transactions);
-    if (data.orders) await set(ref(db, 'orders'), data.orders);
-    if (data.referralClaims) await set(ref(db, 'referralClaims'), data.referralClaims);
-  };
-
   return (
-    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, updateOrderStatus, addReferralClaim, approveReferralClaim, rejectReferralClaim, updateUserBalance, restoreData }}>
+    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, updateOrderStatus, addReferralClaim, approveReferralClaim, rejectReferralClaim, updateUserBalance }}>
       {children}
     </AppContext.Provider>
   );
