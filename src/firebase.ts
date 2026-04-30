@@ -2,13 +2,14 @@ import { initializeApp } from "firebase/app";
 import { getDatabase } from "firebase/database";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBtA6IuG9Z74tT1JQwmRMp9LrXXh4i2Zqw",
-  authDomain: "rn-incam.firebaseapp.com",
-  databaseURL: "https://rn-incam-default-rtdb.firebaseio.com",
-  projectId: "rn-incam",
-  storageBucket: "rn-incam.firebasestorage.app",
-  messagingSenderId: "811957444320",
-  appId: "1:811957444320:web:8ced488b713f71a3c67a85"
+  apiKey: "AIzaSyDQpGthu85N1VWb6mZNhJpMqhSkQ0tBVD8",
+  authDomain: "top-up-bd-767a0.firebaseapp.com",
+  databaseURL: "https://top-up-bd-767a0-default-rtdb.firebaseio.com",
+  projectId: "top-up-bd-767a0",
+  storageBucket: "top-up-bd-767a0.firebasestorage.app",
+  messagingSenderId: "815713733718",
+  appId: "1:815713733718:web:91d5809c0bce2727adfff7",
+  measurementId: "G-ZC3SP25RTR"
 };
 
 const app = initializeApp(firebaseConfig);

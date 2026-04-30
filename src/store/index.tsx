@@ -104,7 +104,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Database Reset Logic: Clear old cache if switching to a new database
-    const currentDbId = "rn-incam";
+    const currentDbId = "top-up-bd-767a0";
     const lastDbId = localStorage.getItem('app_db_id');
     
     if (lastDbId !== currentDbId) {
