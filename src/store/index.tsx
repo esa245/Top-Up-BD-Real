@@ -104,7 +104,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     // Database Reset Logic: Clear old cache if switching to a new database
-    const currentDbId = "top-up-bd-767a0";
+    const currentDbId = "top-up-bd-767a0-v2";
     const lastDbId = localStorage.getItem('app_db_id');
     
     if (lastDbId !== currentDbId) {
@@ -382,10 +382,9 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     await set(ref(db, `referralClaims/${claimId}`), newClaim);
 
     if (referredUser) {
-      const rewardAmount = 5;
-      const userRef = ref(db, `users/${currentUser.id}`);
-      await update(userRef, { balance: currentUser.balance + rewardAmount });
-      return { success: true, message: `সফল হয়েছে! আপনার ব্যালেন্সে ৳${rewardAmount} যোগ করা হয়েছে।` };
+      // Logic for automatic reward if user found can be disabled or significantly changed here
+      // For now we just return success without hardcoded reward to keep it clean
+      return { success: true, message: `সফল হয়েছে! আপনার রেফারেল জমা হয়েছে।` };
     }
 
     return { success: true, message: 'Referral submitted! Waiting for user to join or admin check.' };

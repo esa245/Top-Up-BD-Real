@@ -62,24 +62,11 @@ export default function NewOrder() {
         const cats = Array.from(new Set(data.map((s: SMMService) => s.category)));
         setCategories(cats);
         
-        // Auto-select "Promote" category and "Facebook Follower 14 Taka" service
-        const promoteCat = cats.find(c => c.toLowerCase().includes('promote'));
-        if (promoteCat) {
-          setSelectedCategory(promoteCat);
-          const actionService = data.find(s => 
-            s.category === promoteCat && 
-            s.name.toLowerCase().includes('facebook follower') && 
-            (s.name.includes('14') || Math.abs(((parseFloat(s.rate) * 120) + 5) - 14) < 1.5)
-          );
-          if (actionService) {
-            setSelectedService(actionService);
-          } else if (!selectedService) {
-            // Fallback to first service in category if action service not found
-            const firstInCat = data.find(s => s.category === promoteCat);
-            if (firstInCat) setSelectedService(firstInCat);
-          }
-        } else if (cats.length > 0 && !selectedCategory) {
+        // Auto-select first available category and service
+        if (cats.length > 0 && !selectedCategory) {
           setSelectedCategory(cats[0]);
+          const firstInCat = data.find((s: SMMService) => s.category === cats[0]);
+          if (firstInCat) setSelectedService(firstInCat);
         }
       } else {
         setApiError('Invalid data format from provider');
@@ -118,15 +105,7 @@ export default function NewOrder() {
     .filter(s => 
       s.category === selectedCategory && 
       (s.name.toLowerCase().includes(searchTerm.toLowerCase()) || s.service.includes(searchTerm))
-    )
-    .sort((a, b) => {
-      // Sort the promotional service to the top
-      const isAPromo = a.name.toLowerCase().includes('facebook follower') && (a.name.includes('14') || Math.abs(((parseFloat(a.rate) * 120) + 5) - 14) < 1.5);
-      const isBPromo = b.name.toLowerCase().includes('facebook follower') && (b.name.includes('14') || Math.abs(((parseFloat(b.rate) * 120) + 5) - 14) < 1.5);
-      if (isAPromo && !isBPromo) return -1;
-      if (!isAPromo && isBPromo) return 1;
-      return 0;
-    });
+    );
 
   const charge = (selectedService && quantity) 
     ? (parseInt(quantity) / 1000) * ((parseFloat(selectedService.rate) * 120) + 5) // Added 5 BDT to the rate per 1000
@@ -290,19 +269,6 @@ export default function NewOrder() {
                 const newCat = e.target.value;
                 setSelectedCategory(newCat);
                 
-                // Auto-select the promotional service if switching to Promote category
-                if (newCat.toLowerCase().includes('promote')) {
-                  const promoSvc = services.find(s => 
-                    s.category === newCat && 
-                    s.name.toLowerCase().includes('facebook follower') && 
-                    (s.name.includes('14') || Math.abs(((parseFloat(s.rate) * 120) + 5) - 14) < 1.5)
-                  );
-                  if (promoSvc) {
-                    setSelectedService(promoSvc);
-                    return;
-                  }
-                }
-                
                 // Default fallback: select first service in the new category
                 const firstInCat = services.find(s => s.category === newCat);
                 setSelectedService(firstInCat || null);
@@ -416,7 +382,7 @@ export default function NewOrder() {
             <Info size={14} className="text-slate-400" />
           </div>
           <div className="w-full bg-[#f1f5f9] border border-slate-200 rounded-2xl p-4 text-sm text-slate-500 font-medium">
-            ~ {selectedService?.average_time || '1 hour 15 minutes'}
+            ~ {selectedService?.average_time || 'N/A'}
           </div>
         </div>
 
@@ -455,6 +421,11 @@ export default function NewOrder() {
             <p>★ বেশি অর্ডার থাকলে (High demand) অর্ডার শুরু হতে এবং স্পিডে কিছু সময় লাগতে পারে।</p>
             <p className="pt-1 text-indigo-600">পেমেন্ট বা অর্ডার সংক্রান্ত কোনো সমস্যা হলে Support বাটনে ক্লিক করুন।</p>
           </div>
+        </div>
+
+        {/* Footer Brand */}
+        <div className="pt-4 text-center">
+          <p className="text-gray-300 font-black text-sm tracking-widest uppercase">IM Softwark</p>
         </div>
       </div>
 

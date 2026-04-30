@@ -1,5 +1,6 @@
 {
-  "name": "Top Up BD",
+  "name": "Top Up BD এটা কাজ হবে",
   "description": "Top Up BD - Your trusted platform for social media services and top-ups.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "majorCapabilities": []
 }

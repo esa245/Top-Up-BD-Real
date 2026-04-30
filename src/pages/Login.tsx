@@ -256,7 +256,6 @@ export default function Login() {
                     বাংলাদেশের সবচেয়ে সাশ্রয়ী ও দ্রুতগতির সোশ্যাল মিডিয়া মার্কেটিং সার্ভিস এখন এক জায়গায়।
                   </p>
                   <div className="flex flex-wrap justify-center gap-2">
-                    <span className="bg-white px-3 py-1 rounded-full text-[10px] font-bold text-emerald-600 border border-emerald-100 shadow-sm">🎁 একাউন্ট করুন আর জিতুন ২ টাকা বোনাস</span>
                     <span className="bg-white px-3 py-1 rounded-full text-[10px] font-bold text-emerald-600 border border-emerald-100 shadow-sm">FB ফলোয়ার ১১৳</span>
                     <span className="bg-white px-3 py-1 rounded-full text-[10px] font-bold text-emerald-600 border border-emerald-100 shadow-sm">TikTok লাইক ৫৳</span>
                   </div>
