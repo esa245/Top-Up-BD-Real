@@ -82,9 +82,16 @@ export default function Orders() {
                 </div>
               </div>
               <div className="bg-slate-50 rounded-2xl p-4 text-xs space-y-2">
-                <div className="flex justify-between">
+                <div className="flex flex-col gap-1">
                   <span className="text-slate-500">Link:</span>
-                  <span className="text-slate-900 font-medium truncate ml-2">{order.link}</span>
+                  <a 
+                    href={order.link} 
+                    target="_blank" 
+                    rel="noreferrer" 
+                    className="text-indigo-600 font-medium break-all hover:underline"
+                  >
+                    {order.link}
+                  </a>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Quantity:</span>

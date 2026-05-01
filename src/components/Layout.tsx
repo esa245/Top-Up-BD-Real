@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
-import { TrendingUp, Clock, Wallet, HeadphonesIcon, User, Download } from "lucide-react";
+import { TrendingUp, Clock, Wallet, HeadphonesIcon, User, Download, Gift } from "lucide-react";
 import { useAppContext } from "../store";
 
 export default function Layout() {
@@ -22,6 +22,7 @@ export default function Layout() {
     { path: "/new-order", icon: TrendingUp, label: "NEW ORDER" },
     { path: "/orders", icon: Clock, label: "ORDERS" },
     { path: "/add-funds", icon: Wallet, label: "ADD FUNDS" },
+    { path: "/referral", icon: Gift, label: "REFERRAL" },
     { path: "/support", icon: HeadphonesIcon, label: "SUPPORT" },
   ];
 
@@ -77,7 +78,7 @@ export default function Layout() {
             <button
               key={item.path}
               onClick={() => navigate(item.path)}
-              className={`flex flex-col items-center gap-1 w-1/4 ${
+              className={`flex flex-col items-center gap-1 flex-1 ${
                 isActive
                   ? "text-indigo-600"
                   : "text-gray-400 hover:text-gray-600"

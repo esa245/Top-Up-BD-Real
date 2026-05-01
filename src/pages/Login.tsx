@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAppContext } from '../store';
 import { 
   TrendingUp, 
@@ -29,6 +29,8 @@ export default function Login() {
   
   const { login } = useAppContext();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const refId = searchParams.get('ref') || '';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -47,7 +49,7 @@ export default function Login() {
           toast.error('পাসওয়ার্ড মিলছে না');
           return;
         }
-        await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim());
+        await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim(), '', refId);
         toast.success('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!');
         navigate('/');
       } else {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Settings as SettingsIcon, Save, Edit } from 'lucide-react';
+import { ArrowLeft, Search, LogOut, Users, ShoppingBag, CreditCard, CheckCircle2, XCircle, Download, Upload, Settings as SettingsIcon, Save, Edit } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAppContext } from '../store';
 import toast from 'react-hot-toast';
@@ -7,8 +7,44 @@ import toast from 'react-hot-toast';
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('pending');
-  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, updateSettings, updateOrderStatus, updateUserBalance } = useAppContext();
+  const { users, orders, transactions, referralClaims, settings, approveTransaction, rejectTransaction, approveReferralClaim, rejectReferralClaim, updateSettings, updateOrderStatus, updateUserBalance, restoreData } = useAppContext();
   const [searchQuery, setSearchQuery] = useState('');
+
+  const handleExport = () => {
+    const data = {
+      users: users.reduce((acc: any, u) => ({ ...acc, [u.id]: u }), {}),
+      transactions: transactions.reduce((acc: any, t) => ({ ...acc, [t.id]: t }), {}),
+      orders: orders.reduce((acc: any, o) => ({ ...acc, [o.id]: o }), {}),
+      referralClaims: referralClaims.reduce((acc: any, c) => ({ ...acc, [c.id]: c }), {}),
+      exportedAt: new Date().toISOString()
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `top-up-bd-data-${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    toast.success('Data exported successfully!');
+  };
+
+  const handleImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async (event) => {
+      try {
+        const data = JSON.parse(event.target?.result as string);
+        if (confirm('Are you sure you want to restore this data? This will overwrite current data.')) {
+          await restoreData(data);
+          toast.success('Data restored successfully!');
+        }
+      } catch (err) {
+        toast.error('Invalid data file.');
+      }
+    };
+    reader.readAsText(file);
+  };
 
   const handleStatusChange = async (orderId: string, newStatus: any) => {
     try {
@@ -146,6 +182,20 @@ export default function AdminDashboard() {
             <div className="text-sm font-bold text-gray-500">Total Transactions</div>
             <div className="text-2xl font-bold text-gray-900">{transactions.length}</div>
           </div>
+        </div>
+
+        {/* Export/Import Buttons */}
+        <div className="grid grid-cols-2 gap-4">
+          <button 
+            onClick={handleExport}
+            className="flex items-center justify-center gap-2 bg-indigo-600 text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-indigo-700 transition-colors"
+          >
+            <Download size={18} /> Export Data
+          </button>
+          <label className="flex items-center justify-center gap-2 bg-slate-800 text-white py-3 rounded-xl font-bold text-sm shadow-sm hover:bg-slate-900 transition-colors cursor-pointer">
+            <Upload size={18} /> Import Data
+            <input type="file" accept=".json" onChange={handleImport} className="hidden" />
+          </label>
         </div>
 
         {/* Tab Content */}
@@ -303,6 +353,14 @@ export default function AdminDashboard() {
                       <div className="text-xs">
                         <div className="font-bold text-gray-900 line-clamp-1">{order.service}</div>
                         <div className="text-gray-500">{order.userEmail}</div>
+                        <a 
+                          href={order.link} 
+                          target="_blank" 
+                          rel="noreferrer" 
+                          className="text-indigo-600 hover:underline break-all block mt-1 font-medium"
+                        >
+                          {order.link}
+                        </a>
                       </div>
                       <div className="text-xs text-gray-500">
                         <div className="font-bold text-gray-700">{order.quantity}</div>
@@ -351,6 +409,9 @@ export default function AdminDashboard() {
                         <div className="font-bold text-gray-900">{user.name} (@{user.username})</div>
                         <div className="text-gray-500">{user.email}</div>
                         <div className="text-gray-400">ID: {user.id} | WA: {user.whatsapp || 'N/A'}</div>
+                        {user.referredBy && (
+                          <div className="text-emerald-600 font-bold mt-0.5">Referred By: {user.referredBy}</div>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="font-bold text-indigo-600">৳{user.balance.toFixed(2)}</div>
@@ -389,6 +450,9 @@ export default function AdminDashboard() {
                         <div className="text-xs">
                           <div className="font-bold text-gray-900">{claim.referrerEmail}</div>
                           <div className="text-gray-500">ID: {claim.referrerId}</div>
+                          {((claim as any).amount) && (
+                            <div className="text-emerald-600 font-bold">Amount: ৳{((claim as any).amount).toFixed(2)}</div>
+                          )}
                         </div>
                         <div className="text-xs">
                           <div className="font-bold text-purple-600">{claim.referredUserIdOrEmail}</div>

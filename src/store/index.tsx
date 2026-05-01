@@ -15,6 +15,7 @@ export interface User {
   password?: string;
   balance: number;
   totalSpent: number;
+  referredBy?: string;
   createdAt: string;
 }
 
@@ -58,7 +59,7 @@ interface AppState {
   orders: Order[];
   referralClaims: ReferralClaim[];
   settings: { nagadNumber: string; bkashNumber: string };
-  login: (email: string, name?: string, password?: string, userId?: string, username?: string, whatsapp?: string) => Promise<void>;
+  login: (email: string, name?: string, password?: string, userId?: string, username?: string, whatsapp?: string, refId?: string) => Promise<void>;
   logout: () => void;
   addTransaction: (amount: number, method: string, trxId?: string) => Promise<void>;
   approveTransaction: (id: string) => Promise<void>;
@@ -71,6 +72,7 @@ interface AppState {
   approveReferralClaim: (id: string, amount: number) => Promise<void>;
   rejectReferralClaim: (id: string) => Promise<void>;
   updateUserBalance: (userId: string, newBalance: number) => Promise<void>;
+  restoreData: (data: any) => Promise<void>;
 }
 
 const AppContext = createContext<AppState | null>(null);
@@ -162,7 +164,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [currentUser]);
 
-  const login = async (email: string, name?: string, password?: string, userId?: string, username?: string, whatsapp?: string) => {
+  const login = async (email: string, name?: string, password?: string, userId?: string, username?: string, whatsapp?: string, refId?: string) => {
     const usersRef = ref(db, 'users');
     const snapshot = await get(usersRef);
     const allUsers = snapshot.val() ? (Object.values(snapshot.val()) as User[]) : [];
@@ -179,6 +181,7 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
         password,
         balance: 0, // Signup bonus
         totalSpent: 0,
+        referredBy: refId || '',
         createdAt: new Date().toISOString()
       };
       await set(ref(db, `users/${newUserId}`), user);
@@ -219,6 +222,29 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     
     if (user) {
       await update(userRef, { balance: user.balance + tx.amount });
+
+      // Referral Commission (5%)
+      if (user.referredBy) {
+        const referrerRef = ref(db, `users/${user.referredBy}`);
+        const referrerSnap = await get(referrerRef);
+        const referrer = referrerSnap.val() as User;
+        if (referrer) {
+          const commission = tx.amount * 0.05;
+          await update(referrerRef, { balance: referrer.balance + commission });
+          
+          // Log referral claim for history
+          const claimId = Math.random().toString(36).substr(2, 9);
+          await set(ref(db, `referralClaims/${claimId}`), {
+            id: claimId,
+            referrerId: referrer.id,
+            referrerEmail: referrer.email,
+            referredUserIdOrEmail: user.email,
+            amount: commission,
+            status: 'Approved',
+            createdAt: new Date().toISOString()
+          });
+        }
+      }
     }
   };
 
@@ -395,8 +421,16 @@ export const AppProvider = ({ children }: { children: React.ReactNode }) => {
     await update(userRef, { balance: newBalance });
   };
 
+  const restoreData = async (data: any) => {
+    if (!data) return;
+    if (data.users) await set(ref(db, 'users'), data.users);
+    if (data.transactions) await set(ref(db, 'transactions'), data.transactions);
+    if (data.orders) await set(ref(db, 'orders'), data.orders);
+    if (data.referralClaims) await set(ref(db, 'referralClaims'), data.referralClaims);
+  };
+
   return (
-    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, updateOrderStatus, addReferralClaim, approveReferralClaim, rejectReferralClaim, updateUserBalance }}>
+    <AppContext.Provider value={{ currentUser, users, transactions, orders, referralClaims, settings, login, logout, addTransaction, approveTransaction, rejectTransaction, placeOrder, refreshOrders, updateSettings, updateOrderStatus, addReferralClaim, approveReferralClaim, rejectReferralClaim, updateUserBalance, restoreData }}>
       {children}
     </AppContext.Provider>
   );

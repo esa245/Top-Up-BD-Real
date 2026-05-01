@@ -9,6 +9,7 @@ import Orders from './pages/Orders';
 import AddFunds from './pages/AddFunds';
 import Support from './pages/Support';
 import Profile from './pages/Profile';
+import Referral from './pages/Referral';
 import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 
@@ -32,6 +33,7 @@ export default function App() {
             <Route path="add-funds" element={<AddFunds />} />
             <Route path="support" element={<Support />} />
             <Route path="profile" element={<Profile />} />
+            <Route path="referral" element={<Referral />} />
           </Route>
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin/dashboard" element={<AdminDashboard />} />
