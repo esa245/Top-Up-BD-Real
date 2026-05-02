@@ -19,14 +19,21 @@ import {
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(() => localStorage.getItem('lastEmail') || '');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   
-  const { login } = useAppContext();
+  const { currentUser, login } = useAppContext();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const refId = searchParams.get('ref') || '';
+
+  useEffect(() => {
+    if (currentUser) {
+      localStorage.setItem('lastEmail', currentUser.email);
+      navigate('/', { replace: true });
+    }
+  }, [currentUser, navigate]);
 
   const handleQuickLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -127,7 +134,14 @@ export default function Login() {
 
               <form onSubmit={handleQuickLogin} className="space-y-6">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ইমেইল অ্যাড্রেস</label>
+                  <div className="flex justify-between items-center ml-1">
+                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">ইমেইল অ্যাড্রেস</label>
+                    {localStorage.getItem('lastEmail') && (
+                      <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100 flex items-center gap-1 animate-pulse">
+                        <CheckCircle2 size={10} /> Remembered
+                      </span>
+                    )}
+                  </div>
                   <div className="relative group">
                     <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 group-focus-within:text-emerald-500 transition-colors">
                       <Mail size={18} />
