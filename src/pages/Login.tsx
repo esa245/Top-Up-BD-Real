@@ -19,42 +19,32 @@ import {
 import toast from 'react-hot-toast';
 
 export default function Login() {
-  const [isLoginMode, setIsLoginMode] = useState(false);
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
-  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [userId, setUserId] = useState('');
+  const [loading, setLoading] = useState(false);
   
   const { login } = useAppContext();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const refId = searchParams.get('ref') || '';
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleQuickLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email.trim()) {
+      toast.error('অনুগ্রহ করে ইমেইল দিন');
+      return;
+    }
     
-    if (isLoginMode) {
-      if (email.trim() && password.trim()) {
-        await login(email.trim(), '', password.trim());
-        toast.success('আপনাকে স্বাগতম!');
-        navigate('/');
-      } else {
-        toast.error('অনুগ্রহ করে সব ঘর পূরণ করুন');
-      }
-    } else {
-      if (email.trim() && name.trim() && password.trim() && username.trim()) {
-        if (password !== confirmPassword) {
-          toast.error('পাসওয়ার্ড মিলছে না');
-          return;
-        }
-        await login(email.trim(), name.trim(), password.trim(), userId.trim(), username.trim(), '', refId);
-        toast.success('অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!');
-        navigate('/');
-      } else {
-        toast.error('অনুগ্রহ করে সব ঘর পূরণ করুন');
-      }
+    setLoading(true);
+    try {
+      // Automatic login/signup with just email
+      await login(email.trim(), '', '', '', '', '', refId);
+      toast.success('সফলভাবে লগইন হয়েছে!');
+      navigate('/');
+    } catch (error) {
+      toast.error('লগইন করতে সমস্যা হয়েছে');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -128,104 +118,45 @@ export default function Login() {
             <div className="p-8 md:p-12">
               <div className="mb-10 text-center">
                 <h2 className="text-3xl font-black text-gray-900 mb-2">
-                  {isLoginMode ? 'স্বাগতম' : 'অ্যাকাউন্ট তৈরি করুন'}
+                  অটোমেটিক লগইন
                 </h2>
-                <p className="text-gray-500 font-medium">
-                  {isLoginMode ? 'আপনার প্যানেলে প্রবেশ করতে তথ্য দিন' : 'বাংলাদেশের সেরা SMM প্যানেলে যোগ দিন'}
+                <p className="text-gray-500 font-medium leading-relaxed px-4">
+                  আপনার ইমেইল দিয়ে মুহূর্তেই অ্যাকাউন্ট তৈরি বা লগইন করুন। কোনো পাসওয়ার্ডের ঝামেলা নেই!
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {!isLoginMode && (
-                  <>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পুরো নাম</label>
-                        <div className="relative">
-                          <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                          <input 
-                            type="text" 
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            placeholder="আপনার নাম লিখুন"
-                            required
-                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                          />
-                        </div>
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ইউজারনেম</label>
-                        <div className="relative">
-                          <Fingerprint className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                          <input 
-                            type="text" 
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                            placeholder="ইউজারনেম দিন"
-                            required
-                            className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                <div className="space-y-1.5">
+              <form onSubmit={handleQuickLogin} className="space-y-6">
+                <div className="space-y-2">
                   <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">ইমেইল অ্যাড্রেস</label>
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
+                  <div className="relative group">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-300 group-focus-within:text-emerald-500 transition-colors">
+                      <Mail size={18} />
+                    </div>
                     <input 
                       type="email" 
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="আপনার ইমেইল দিন"
+                      placeholder="আপনার ইমেইল দিন (উদা: user@gmail.com)"
                       required
-                      className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
+                      className="w-full bg-gray-50 border-2 border-gray-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold focus:outline-none focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 focus:bg-white transition-all"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পাসওয়ার্ড</label>
-                    <div className="relative">
-                      <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                      <input 
-                        type="password" 
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        required
-                        className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                      />
-                    </div>
-                  </div>
-                  {!isLoginMode && (
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">পাসওয়ার্ড নিশ্চিত করুন</label>
-                      <div className="relative">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
-                        <input 
-                          type="password" 
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="••••••••"
-                          required
-                          className="w-full bg-gray-50 border border-gray-100 rounded-xl py-3.5 pl-11 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:bg-white transition-all"
-                        />
-                      </div>
-                    </div>
-                  )}
-                </div>
-
                 <button 
                   type="submit"
-                  className="w-full bg-emerald-600 text-white font-black rounded-xl py-4 mt-4 hover:bg-emerald-700 transition-all shadow-lg shadow-emerald-200 active:scale-[0.98] uppercase tracking-widest text-sm flex items-center justify-center gap-2"
+                  disabled={loading}
+                  className={`w-full bg-emerald-600 text-white font-black rounded-2xl py-4 shadow-xl shadow-emerald-100 active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-sm uppercase tracking-widest ${loading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-emerald-700 hover:-translate-y-1'}`}
                 >
-                  {isLoginMode ? 'প্যানেলে লগইন করুন' : 'আমার অ্যাকাউন্ট তৈরি করুন'}
-                  <ArrowRight size={18} />
+                  {loading ? 'প্রসেসিং হচ্ছে...' : 'লগইন বা সাইন আপ করুন'}
+                  {!loading && <ArrowRight size={20} />}
                 </button>
+                
+                <div className="flex items-center gap-4 py-2">
+                  <div className="flex-1 h-px bg-gray-100"></div>
+                  <span className="text-[10px] font-black text-gray-300 uppercase tracking-widest">নিরাপদ লগইন</span>
+                  <div className="flex-1 h-px bg-gray-100"></div>
+                </div>
               </form>
 
               <div className="mt-6">
@@ -239,15 +170,10 @@ export default function Login() {
                 </a>
               </div>
 
-              <div className="mt-8 text-center">
-                <p className="text-gray-500 text-sm font-medium">
-                  {isLoginMode ? "অ্যাকাউন্ট নেই?" : "আগে থেকেই অ্যাকাউন্ট আছে?"}
-                  <button 
-                    onClick={() => setIsLoginMode(!isLoginMode)}
-                    className="ml-2 text-emerald-600 font-bold hover:underline"
-                  >
-                    {isLoginMode ? 'সাইন আপ' : 'লগইন'}
-                  </button>
+              <div className="mt-8 text-center bg-gray-50 rounded-2xl p-4 border border-dashed border-gray-200">
+                <p className="text-gray-500 text-xs font-bold leading-relaxed uppercase tracking-wider">
+                  অ্যাকাউন্ট তৈরি বা লগইন করতে শুধু আপনার সঠিক ইমেইলটি দিন। <br />
+                  <span className="text-emerald-600">সবকিছু অটোমেটিকলি হয়ে যাবে!</span>
                 </p>
               </div>
 
